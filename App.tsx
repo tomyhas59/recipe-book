@@ -14,8 +14,8 @@ const App = () => {
       <Tab.Navigator
         initialRouteName="Home"
         screenOptions={{
-          tabBarActiveTintColor: "#e91e63", // 활성화된 아이콘 색상
-          tabBarInactiveTintColor: "#b0b0b0", // 비활성화된 아이콘 색상
+          tabBarActiveTintColor: "#e91e63",
+          tabBarInactiveTintColor: "#b0b0b0",
         }}
       >
         <Tab.Screen
@@ -26,6 +26,7 @@ const App = () => {
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="home" color={color} size={size} />
             ),
+            headerShown: false,
           }}
         />
         <Tab.Screen
@@ -40,6 +41,7 @@ const App = () => {
                 size={size}
               />
             ),
+            headerShown: false,
           }}
         />
         <Tab.Screen
@@ -50,6 +52,7 @@ const App = () => {
             tabBarIcon: ({ color, size }) => (
               <MaterialCommunityIcons name="heart" color={color} size={size} />
             ),
+            headerShown: false,
           }}
         />
       </Tab.Navigator>

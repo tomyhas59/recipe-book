@@ -4,214 +4,178 @@ import {
   Text,
   FlatList,
   TouchableOpacity,
-  StyleSheet,
   Image,
   SafeAreaView,
   ScrollView,
 } from "react-native";
+import styled from "styled-components/native";
 import { recipes, Recipe } from "../data/recipes";
 
 const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>("전체");
-
   const scrollViewRef = useRef<ScrollView | null>(null);
-
-  // 카테고리에 따른 레시피 필터링
   const filteredRecipes =
     selectedCategory === "전체"
       ? recipes
       : recipes.filter((recipe) => recipe.category === selectedCategory);
 
-  // 카테고리 리스트
   const categories = ["전체", "한식", "중식", "양식", "일식"];
 
-  // 카테고리 스크롤 이동 함수
   const scrollToCategory = (direction: "left" | "right") => {
     if (scrollViewRef.current) {
       scrollViewRef.current.scrollTo({
-        x: direction === "right" ? 500 : -500, // 왼쪽 또는 오른쪽으로 스크롤
+        x: direction === "right" ? 500 : -500,
         animated: true,
       });
     }
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.title}>레시피 목록</Text>
-
-      {/* 카테고리 버튼들 */}
-      <View style={styles.navbarContainer}>
-        <TouchableOpacity
-          style={[styles.scrollButton, { left: 10 }]}
-          onPress={() => scrollToCategory("left")}
-        >
-          <Text style={styles.scrollButtonText}>{"<"}</Text>
-        </TouchableOpacity>
+    <Container>
+      <Title>레시피 목록</Title>
+      <NavbarContainer>
+        <ScrollButton onPress={() => scrollToCategory("left")}>
+          <ScrollButtonText>{"<"}</ScrollButtonText>
+        </ScrollButton>
 
         <ScrollView
           horizontal
           ref={scrollViewRef}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.navbar}
+          contentContainerStyle={{ flexDirection: "row" }}
         >
           {categories.map((category) => (
-            <TouchableOpacity
+            <NavButton
               key={category}
-              style={[
-                styles.navButton,
-                selectedCategory === category && styles.selectedNavButton,
-              ]}
+              selected={selectedCategory === category}
               onPress={() => setSelectedCategory(category)}
             >
-              <Text
-                style={[
-                  styles.navButtonText,
-                  selectedCategory === category && styles.selectedNavButtonText,
-                ]}
-              >
+              <NavButtonText selected={selectedCategory === category}>
                 {category}
-              </Text>
-            </TouchableOpacity>
+              </NavButtonText>
+            </NavButton>
           ))}
         </ScrollView>
 
-        <TouchableOpacity
-          style={[styles.scrollButton, { right: 10 }]}
-          onPress={() => scrollToCategory("right")}
-        >
-          <Text style={styles.scrollButtonText}>{">"}</Text>
-        </TouchableOpacity>
-      </View>
+        <ScrollButton onPress={() => scrollToCategory("right")}>
+          <ScrollButtonText>{">"}</ScrollButtonText>
+        </ScrollButton>
+      </NavbarContainer>
 
       <FlatList
         data={filteredRecipes}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
-        contentContainerStyle={styles.recipeList}
+        contentContainerStyle={{ paddingHorizontal: 8 }}
         renderItem={({ item }: { item: Recipe }) => (
-          <View style={styles.recipeItem}>
-            <Image
-              source={require("../assets/logo.png")}
-              style={styles.recipeImage}
-            />
-            <Text style={styles.recipeName}>{item.name}</Text>
-            <TouchableOpacity
-              style={styles.recipeButton}
+          <RecipeItem>
+            <RecipeImage source={require("../assets/logo.png")} />
+            <RecipeName>{item.name}</RecipeName>
+            <RecipeButton
               onPress={() =>
                 navigation.navigate("RecipeDetails", { recipe: item })
               }
             >
-              <Text style={styles.recipeButtonText}>자세히 보기</Text>
-            </TouchableOpacity>
-          </View>
+              <RecipeButtonText>자세히 보기</RecipeButtonText>
+            </RecipeButton>
+          </RecipeItem>
         )}
       />
-    </SafeAreaView>
+    </Container>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f5f5f5",
-    paddingTop: 40,
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "bold",
-    color: "#333",
-    marginBottom: 20,
-    paddingHorizontal: 16,
-    textAlign: "center",
-  },
-  navbarContainer: {
-    flexDirection: "row",
-    width: 400,
-    justifyContent: "space-around",
-    alignItems: "center",
-    marginBottom: 20,
-  },
-  navbar: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    marginHorizontal: 10,
-  },
-  navButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    marginHorizontal: 8,
-    borderRadius: 25,
-    borderWidth: 1,
-    borderColor: "#008CBA",
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  selectedNavButton: {
-    backgroundColor: "#008CBA",
-  },
-  navButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#008CBA",
-  },
-  selectedNavButtonText: {
-    color: "#fff",
-  },
-  recipeList: {
-    paddingHorizontal: 8,
-  },
-  recipeItem: {
-    flex: 1,
-    margin: 10,
-    backgroundColor: "#fff",
-    borderRadius: 15,
-    padding: 15,
-    alignItems: "center",
-    boxShadow: "0px 2px 2px rgba(0, 0, 0, 0.8)",
-    elevation: 5, // Android에서 그림자 효과
-    overflow: "hidden",
-  },
-  recipeImage: {
-    width: "100%",
-    height: 120,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  recipeName: {
-    fontSize: 18,
-    fontWeight: "500",
-    color: "#333",
-    marginBottom: 10,
-    textAlign: "center",
-  },
-  recipeButton: {
-    backgroundColor: "#008CBA",
-    paddingVertical: 8,
-    paddingHorizontal: 20,
-    borderRadius: 25,
-  },
-  recipeButtonText: {
-    fontSize: 14,
-    color: "#fff",
-    fontWeight: "600",
-  },
-  scrollButton: {
-    backgroundColor: "#fff",
-    padding: 12,
-    zIndex: 999,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: "#008CBA",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  scrollButtonText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#008CBA",
-  },
-});
+const Container = styled.SafeAreaView`
+  flex: 1;
+  background-color: #f5f5f5;
+  align-items: center;
+`;
+
+const Title = styled.Text`
+  font-size: 36px;
+  font-weight: bold;
+  background-color: #9ceaff;
+  padding: 15px;
+  border-radius: 20px;
+  color: #2b385a;
+  margin-block: 23px;
+  text-align: center;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+`;
+
+const NavbarContainer = styled.View`
+  flex-direction: row;
+  width: 400px;
+  justify-content: space-around;
+  align-items: center;
+  margin-bottom: 20px;
+`;
+
+const NavButton = styled.TouchableOpacity<{ selected: boolean }>`
+  padding: 12px 14px;
+  margin: 0 8px;
+  border-radius: 25px;
+  border: 1px solid #008cba;
+  background-color: ${(props) => (props.selected ? "#008CBA" : "#fff")};
+  align-items: center;
+`;
+
+const NavButtonText = styled.Text<{ selected: boolean }>`
+  font-size: 16px;
+  font-weight: 600;
+  color: ${(props) => (props.selected ? "#fff" : "#008CBA")};
+`;
+
+const ScrollButton = styled.TouchableOpacity`
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 20px;
+  border: 1px solid #008cba;
+  justify-content: center;
+  align-items: center;
+`;
+
+const ScrollButtonText = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
+  color: #008cba;
+`;
+
+const RecipeItem = styled.View`
+  margin: 10px;
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 15px;
+  align-items: center;
+  overflow: hidden;
+`;
+
+const RecipeImage = styled.Image`
+  width: 100%;
+  height: 120px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+`;
+
+const RecipeName = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
+
+  color: #333;
+  margin-bottom: 10px;
+  text-align: center;
+`;
+
+const RecipeButton = styled.TouchableOpacity`
+  background-color: #008cba;
+  padding: 8px 20px;
+  border-radius: 25px;
+`;
+
+const RecipeButtonText = styled.Text`
+  font-size: 14px;
+  color: #fff;
+  font-weight: 600;
+`;
 
 export default HomeScreen;

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { View, Button, Text, StyleSheet, FlatList } from "react-native";
+import { View, Button, Text, FlatList } from "react-native";
+import styled from "styled-components/native";
 import { Recipe, recipes } from "../data/recipes"; // 더미 데이터 불러오기
 
 const FavoritesScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
@@ -14,16 +15,16 @@ const FavoritesScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>즐겨찾기 레시피</Text>
+    <Container>
+      <Title>즐겨찾기 레시피</Title>
       {favorites.length === 0 ? (
-        <Text style={styles.message}>즐겨찾기 목록이 비어있습니다.</Text>
+        <Message>즐겨찾기 목록이 비어있습니다.</Message>
       ) : (
         <FlatList
           data={favorites}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <View style={styles.recipeContainer}>
+            <RecipeContainer>
               <Button
                 title={item.name} // 레시피 이름을 버튼에 표시
                 onPress={() =>
@@ -34,43 +35,41 @@ const FavoritesScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
                 title="제거"
                 onPress={() => handleRemoveFavorite(item.id)}
               />
-            </View>
+            </RecipeContainer>
           )}
         />
       )}
-    </View>
+    </Container>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 20,
-  },
-  message: {
-    fontSize: 18,
-    color: "gray",
-  },
-  recipeContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 10,
-    padding: 10,
-    borderBottomWidth: 1,
-    borderColor: "#ddd",
-    width: "100%",
-  },
-  recipeName: {
-    fontSize: 18,
-  },
-});
+const Container = styled.View`
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+`;
+
+const Title = styled.Text`
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+`;
+
+const Message = styled.Text`
+  font-size: 18px;
+  color: gray;
+`;
+
+const RecipeContainer = styled.View`
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-bottom-width: 1px;
+  border-color: #ddd;
+  width: 100%;
+`;
 
 export default FavoritesScreen;
