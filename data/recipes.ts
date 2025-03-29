@@ -1,5 +1,7 @@
 // src/data/recipes.ts
 
+import { ImageSourcePropType } from "react-native";
+
 export interface Ingredient {
   name: string;
   amount: string; // 계량 정보 (예: "200g", "1컵", "2개")
@@ -12,7 +14,7 @@ export interface Recipe {
   ingredients: Ingredient[];
   instructions: string[];
   category: string; // 카테고리 추가
-  image: string;
+  image: ImageSourcePropType;
 }
 
 // 예시 데이터
@@ -36,7 +38,7 @@ export const recipes: Recipe[] = [
       "양파와 대파를 썰어 넣고 끓여서 완성합니다.",
     ],
     category: "한식",
-    image: "../assets/kimchi.png",
+    image: require("../assets/kimchi.png"),
   },
   {
     id: 2,
@@ -56,7 +58,7 @@ export const recipes: Recipe[] = [
       "고기가 익을 때까지 구워서 완성합니다.",
     ],
     category: "한식",
-    image: "",
+    image: require("../assets/bulgo.png"),
   },
   {
     id: 3,
@@ -74,7 +76,7 @@ export const recipes: Recipe[] = [
       "소고기는 간장에 양념하여 볶습니다.",
       "계란은 프라이팬에 볶고, 나머지 재료들과 함께 밥에 비벼 먹습니다.",
     ],
-    image: "",
+    image: require("../assets/bibim.png"),
     category: "한식",
   },
 
@@ -97,7 +99,7 @@ export const recipes: Recipe[] = [
       "면을 삶아 소스를 부어 완성합니다.",
     ],
     category: "중식",
-    image: "",
+    image: require("../assets/jjajang.png"),
   },
   {
     id: 5,
@@ -116,7 +118,7 @@ export const recipes: Recipe[] = [
       "대파를 썰어 넣고 간을 맞춘 후 완성합니다.",
     ],
     category: "중식",
-    image: "",
+    image: require("../assets/mapa.png"),
   },
   {
     id: 6,
@@ -135,7 +137,7 @@ export const recipes: Recipe[] = [
       "소스 재료를 섞어 끓여서 튀긴 돼지고기에 부어 완성합니다.",
     ],
     category: "중식",
-    image: "",
+    image: require("../assets/tangsu.png"),
   },
 
   // 양식
@@ -156,7 +158,7 @@ export const recipes: Recipe[] = [
       "파마산 치즈를 올려서 마무리합니다.",
     ],
     category: "양식",
-    image: "",
+    image: require("../assets/spa.png"),
   },
   {
     id: 8,
@@ -175,7 +177,7 @@ export const recipes: Recipe[] = [
       "오븐에 구워서 완성합니다.",
     ],
     category: "양식",
-    image: "",
+    image: require("../assets/pizza.png"),
   },
   {
     id: 9,
@@ -195,7 +197,7 @@ export const recipes: Recipe[] = [
       "버터와 치즈를 넣고 섞어 완성합니다.",
     ],
     category: "양식",
-    image: "",
+    image: require("../assets/rijo.png"),
   },
 
   // 일식
@@ -215,7 +217,7 @@ export const recipes: Recipe[] = [
       "간장과 와사비를 곁들여 먹습니다.",
     ],
     category: "일식",
-    image: "",
+    image: require("../assets/chobab.png"),
   },
   {
     id: 11,
@@ -234,7 +236,7 @@ export const recipes: Recipe[] = [
       "돈까스 소스를 뿌려 완성합니다.",
     ],
     category: "일식",
-    image: "",
+    image: require("../assets/donga.png"),
   },
   {
     id: 12,
@@ -252,6 +254,6 @@ export const recipes: Recipe[] = [
       "고기와 파를 넣고 끓여서 완성합니다.",
     ],
     category: "일식",
-    image: "",
+    image: require("../assets/udong.png"),
   },
 ];

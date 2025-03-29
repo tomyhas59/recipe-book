@@ -8,6 +8,7 @@ const RecipeDetailScreen: React.FC<{ route: any }> = ({ route }) => {
   return (
     <Container>
       <Title>{recipe.name}</Title>
+      <RecipeImage source={recipe.image} />
       <SectionContainer>
         <SectionTitle>재료</SectionTitle>
         <FlatList
@@ -40,6 +41,7 @@ const RecipeDetailScreen: React.FC<{ route: any }> = ({ route }) => {
 const Container = styled.View`
   flex: 1;
   background-color: #f8f8f8;
+  align-items: center;
   padding: 20px;
 `;
 
@@ -52,6 +54,7 @@ const Title = styled.Text`
 `;
 
 const SectionContainer = styled.View`
+  width: 100%;
   background-color: #fff;
   padding: 16px;
   border-radius: 10px;
@@ -87,6 +90,11 @@ const IngredientAmount = styled.Text`
 const Instructions = styled.Text`
   margin-bottom: 12px;
   font-size: 16px;
+`;
+
+const RecipeImage = styled.Image`
+  border-radius: 10px;
+  margin-bottom: 10px;
 `;
 
 export default RecipeDetailScreen;

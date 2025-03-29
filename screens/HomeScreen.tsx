@@ -69,7 +69,7 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         contentContainerStyle={{ paddingHorizontal: 8 }}
         renderItem={({ item }: { item: Recipe }) => (
           <RecipeItem>
-            <RecipeImage source={require("../assets/logo.png")} />
+            <RecipeImage source={item.image} />
             <RecipeName>{item.name}</RecipeName>
             <RecipeButton
               onPress={() =>
@@ -167,14 +167,14 @@ const RecipeName = styled.Text`
 `;
 
 const RecipeButton = styled.TouchableOpacity`
-  background-color: #008cba;
+  background-color: #9be6ff;
   padding: 8px 20px;
   border-radius: 25px;
 `;
 
 const RecipeButtonText = styled.Text`
   font-size: 14px;
-  color: #fff;
+  color: #4a4a4a;
   font-weight: 600;
 `;
 
