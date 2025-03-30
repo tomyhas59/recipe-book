@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, FlatList } from "react-native";
+import { FlatList } from "react-native";
 import styled from "styled-components/native";
 
 const RecipeDetailScreen: React.FC<{ route: any }> = ({ route }) => {

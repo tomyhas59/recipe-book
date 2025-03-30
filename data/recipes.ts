@@ -4,7 +4,7 @@ import { ImageSourcePropType } from "react-native";
 
 export interface Ingredient {
   name: string;
-  amount: string; // 계량 정보 (예: "200g", "1컵", "2개")
+  amount: string;
 }
 
 export interface Recipe {
@@ -13,7 +13,7 @@ export interface Recipe {
   description: string;
   ingredients: Ingredient[];
   instructions: string[];
-  category: string; // 카테고리 추가
+  category: string;
   image: ImageSourcePropType;
 }
 

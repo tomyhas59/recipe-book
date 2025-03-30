@@ -1,13 +1,5 @@
 import React, { useState, useRef } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  Image,
-  SafeAreaView,
-  ScrollView,
-} from "react-native";
+import { FlatList, ScrollView } from "react-native";
 import styled from "styled-components/native";
 import { recipes, Recipe } from "../data/recipes";
 
@@ -21,23 +13,10 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
   const categories = ["전체", "한식", "중식", "양식", "일식"];
 
-  const scrollToCategory = (direction: "left" | "right") => {
-    if (scrollViewRef.current) {
-      scrollViewRef.current.scrollTo({
-        x: direction === "right" ? 500 : -500,
-        animated: true,
-      });
-    }
-  };
-
   return (
     <Container>
       <Title>레시피 목록</Title>
       <NavbarContainer>
-        <ScrollButton onPress={() => scrollToCategory("left")}>
-          <ScrollButtonText>{"<"}</ScrollButtonText>
-        </ScrollButton>
-
         <ScrollView
           horizontal
           ref={scrollViewRef}
@@ -56,10 +35,6 @@ const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             </NavButton>
           ))}
         </ScrollView>
-
-        <ScrollButton onPress={() => scrollToCategory("right")}>
-          <ScrollButtonText>{">"}</ScrollButtonText>
-        </ScrollButton>
       </NavbarContainer>
 
       <FlatList

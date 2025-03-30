@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { View, Button, Text, FlatList } from "react-native";
+import { Button, FlatList } from "react-native";
 import styled from "styled-components/native";
-import { Recipe, recipes } from "../data/recipes"; // 더미 데이터 불러오기
+import { Recipe, recipes } from "../data/recipes";
 
 const FavoritesScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  // 예시 데이터: 즐겨찾기 레시피 목록
   const [favorites, setFavorites] = useState<Recipe[]>([
     recipes[0], // 김치찌개
     recipes[1], // 불고기
