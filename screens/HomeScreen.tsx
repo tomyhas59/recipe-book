@@ -1,156 +1,86 @@
-import React, { useState, useRef } from "react";
-import { FlatList, ScrollView } from "react-native";
+import React from "react";
+import { FlatList, TouchableOpacity, Image } from "react-native";
 import styled from "styled-components/native";
-import { recipes, Recipe } from "../data/recipes";
+import { Recipe, recipes } from "../data/recipes";
+import { useRecoilValue } from "recoil";
+import { selectedTheme } from "../recoil/themeState";
 
-const HomeScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
-  const [selectedCategory, setSelectedCategory] = useState<string>("전체");
-  const scrollViewRef = useRef<ScrollView | null>(null);
-  const filteredRecipes =
-    selectedCategory === "전체"
-      ? recipes
-      : recipes.filter((recipe) => recipe.category === selectedCategory);
+type Props = {
+  navigation: any;
+};
 
-  const categories = ["전체", "한식", "중식", "양식", "일식"];
+const HomeScreen: React.FC<Props> = ({ navigation }) => {
+  const themeColors = useRecoilValue(selectedTheme);
+
+  const renderItem = ({ item }: { item: Recipe }) => (
+    <Card
+      onPress={() => navigation.navigate("RecipeDetail", { recipe: item })}
+      style={{
+        backgroundColor: themeColors.card,
+        borderColor: themeColors.border,
+      }}
+    >
+      <RecipeImage source={item.image} />
+      <CardContent>
+        <RecipeName style={{ color: themeColors.text }}>{item.name}</RecipeName>
+        <Description style={{ color: themeColors.text }} numberOfLines={2}>
+          {item.description}
+        </Description>
+      </CardContent>
+    </Card>
+  );
 
   return (
-    <Container>
-      <Title>레시피 목록</Title>
-      <NavbarContainer>
-        <ScrollView
-          horizontal
-          ref={scrollViewRef}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ flexDirection: "row" }}
-        >
-          {categories.map((category) => (
-            <NavButton
-              key={category}
-              selected={selectedCategory === category}
-              onPress={() => setSelectedCategory(category)}
-            >
-              <NavButtonText selected={selectedCategory === category}>
-                {category}
-              </NavButtonText>
-            </NavButton>
-          ))}
-        </ScrollView>
-      </NavbarContainer>
-
+    <Container style={{ backgroundColor: themeColors.background }}>
+      <Title style={{ color: themeColors.text }}>🍽 추천 레시피</Title>
       <FlatList
-        data={filteredRecipes}
+        data={recipes}
+        renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
-        numColumns={2}
-        contentContainerStyle={{ paddingHorizontal: 8 }}
-        renderItem={({ item }: { item: Recipe }) => (
-          <RecipeItem>
-            <RecipeImage source={item.image} />
-            <RecipeName>{item.name}</RecipeName>
-            <RecipeButton
-              onPress={() =>
-                navigation.navigate("RecipeDetails", { recipe: item })
-              }
-            >
-              <RecipeButtonText>자세히 보기</RecipeButtonText>
-            </RecipeButton>
-          </RecipeItem>
-        )}
+        contentContainerStyle={{ paddingBottom: 20 }}
       />
     </Container>
   );
 };
 
-const Container = styled.SafeAreaView`
+const Container = styled.View`
   flex: 1;
-  background-color: #f5f5f5;
-  align-items: center;
+  padding: 20px;
 `;
 
 const Title = styled.Text`
-  font-size: 36px;
+  font-size: 24px;
   font-weight: bold;
-  background-color: #9ceaff;
-  padding: 15px;
-  border-radius: 20px;
-  color: #2b385a;
-  margin-block: 23px;
-  text-align: center;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-`;
-
-const NavbarContainer = styled.View`
-  flex-direction: row;
-  width: 400px;
-  justify-content: space-around;
-  align-items: center;
   margin-bottom: 20px;
 `;
 
-const NavButton = styled.TouchableOpacity<{ selected: boolean }>`
-  padding: 12px 14px;
-  margin: 0 8px;
-  border-radius: 25px;
-  border: 1px solid #008cba;
-  background-color: ${(props) => (props.selected ? "#008CBA" : "#fff")};
-  align-items: center;
-`;
-
-const NavButtonText = styled.Text<{ selected: boolean }>`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${(props) => (props.selected ? "#fff" : "#008CBA")};
-`;
-
-const ScrollButton = styled.TouchableOpacity`
-  background-color: #fff;
-  padding: 15px;
-  border-radius: 20px;
-  border: 1px solid #008cba;
-  justify-content: center;
-  align-items: center;
-`;
-
-const ScrollButtonText = styled.Text`
-  font-size: 18px;
-  font-weight: bold;
-  color: #008cba;
-`;
-
-const RecipeItem = styled.View`
-  margin: 10px;
-  background-color: #fff;
-  border-radius: 15px;
-  padding: 15px;
-  align-items: center;
+const Card = styled(TouchableOpacity)`
+  border-radius: 12px;
   overflow: hidden;
+  margin-bottom: 15px;
+  flex-direction: row;
+  border-width: 1px;
 `;
 
-const RecipeImage = styled.Image`
-  width: 100%;
-  height: 120px;
-  border-radius: 10px;
-  margin-bottom: 10px;
+const RecipeImage = styled(Image)`
+  width: 100px;
+  height: 100px;
+`;
+
+const CardContent = styled.View`
+  flex: 1;
+  padding: 10px;
+  justify-content: center;
 `;
 
 const RecipeName = styled.Text`
   font-size: 18px;
   font-weight: bold;
-
-  color: #333;
-  margin-bottom: 10px;
-  text-align: center;
 `;
 
-const RecipeButton = styled.TouchableOpacity`
-  background-color: #9be6ff;
-  padding: 8px 20px;
-  border-radius: 25px;
-`;
-
-const RecipeButtonText = styled.Text`
+const Description = styled.Text`
   font-size: 14px;
-  color: #4a4a4a;
-  font-weight: 600;
+  margin-top: 5px;
 `;
 
 export default HomeScreen;
