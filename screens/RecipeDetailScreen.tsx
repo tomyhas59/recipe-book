@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Image, ScrollView, View } from "react-native";
 import styled from "styled-components/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
 import { StackScreenProps } from "@react-navigation/stack";
 import { Recipe } from "../data/recipes";
 import { RootStackParamList } from "../App";
+import { favoritesState } from "../recoil/favoritesState";
 
 type Props = StackScreenProps<RootStackParamList, "RecipeDetail">;
 
@@ -14,6 +15,8 @@ const DetailRecipeScreen: React.FC<Props> = ({ route }) => {
   const { recipe } = route.params;
   const [isFavorite, setIsFavorite] = useState(false);
   const themeColors = useRecoilValue(selectedTheme);
+
+  const [favorites, setFavorites] = useRecoilState(favoritesState);
 
   useEffect(() => {
     const checkFavorite = async () => {
@@ -30,16 +33,18 @@ const DetailRecipeScreen: React.FC<Props> = ({ route }) => {
 
   const toggleFavorite = async () => {
     try {
-      const storedFavorites = await AsyncStorage.getItem("favorites");
-      let favorites = storedFavorites ? JSON.parse(storedFavorites) : [];
+      let updatedFavorites = [...favorites];
 
       if (isFavorite) {
-        favorites = favorites.filter((fav: Recipe) => fav.id !== recipe.id);
+        updatedFavorites = updatedFavorites.filter(
+          (fav) => fav.id !== recipe.id
+        );
       } else {
-        favorites.push(recipe);
+        updatedFavorites.push(recipe);
       }
 
-      await AsyncStorage.setItem("favorites", JSON.stringify(favorites));
+      setFavorites(updatedFavorites);
+      await AsyncStorage.setItem("favorites", JSON.stringify(updatedFavorites));
       setIsFavorite(!isFavorite);
     } catch (error) {
       console.error("즐겨찾기 저장 오류:", error);

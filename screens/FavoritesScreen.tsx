@@ -1,44 +1,52 @@
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { FlatList, TouchableOpacity, Image } from "react-native";
 import styled from "styled-components/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Recipe } from "../data/recipes";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
+import { favoritesState } from "../recoil/favoritesState";
 
 type Props = {
   navigation: any;
 };
 
 const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
-  const [favorites, setFavorites] = useState<Recipe[]>([]);
+  const [favorites, setFavorites] = useRecoilState(favoritesState);
   const theme = useRecoilValue(selectedTheme);
 
-  // ✅ 로컬 저장소에서 즐겨찾기 데이터 불러오기
   useEffect(() => {
+    let isMounted = true;
     const loadFavorites = async () => {
       try {
         const storedFavorites = await AsyncStorage.getItem("favorites");
-        if (storedFavorites) {
-          setFavorites(JSON.parse(storedFavorites));
+        if (isMounted) {
+          setFavorites(storedFavorites ? JSON.parse(storedFavorites) : []);
         }
       } catch (error) {
         console.error("즐겨찾기 불러오기 실패:", error);
       }
     };
     loadFavorites();
-  }, []);
+    return () => {
+      isMounted = false;
+    };
+  }, [setFavorites]);
 
-  // ✅ 즐겨찾기 삭제
-  const removeFavorite = async (id: number) => {
-    try {
-      const updatedFavorites = favorites.filter((recipe) => recipe.id !== id);
-      setFavorites(updatedFavorites);
-      await AsyncStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-    } catch (error) {
-      console.error("즐겨찾기 삭제 실패:", error);
-    }
-  };
+  const removeFavorite = useCallback(
+    async (id: number) => {
+      try {
+        const updatedFavorites = favorites.filter((recipe) => recipe.id !== id);
+        setFavorites(updatedFavorites);
+        await AsyncStorage.setItem(
+          "favorites",
+          JSON.stringify(updatedFavorites)
+        );
+      } catch (error) {
+        console.error("즐겨찾기 삭제 실패:", error);
+      }
+    },
+    [favorites, setFavorites]
+  );
 
   return (
     <Container style={{ backgroundColor: theme.background }}>
@@ -53,6 +61,14 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
               }
             >
               <RecipeCard style={{ backgroundColor: theme.card }}>
+                <RemoveButton
+                  style={{ backgroundColor: theme.button }}
+                  onPress={() => removeFavorite(item.id)}
+                >
+                  <RemoveButtonText style={{ color: theme.buttonText }}>
+                    X
+                  </RemoveButtonText>
+                </RemoveButton>
                 <RecipeImage source={item.image} />
                 <RecipeInfo>
                   <RecipeName style={{ color: theme.text }}>
@@ -64,14 +80,6 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
                   >
                     {item.description}
                   </RecipeDescription>
-                  <RemoveButton
-                    style={{ backgroundColor: theme.button }}
-                    onPress={() => removeFavorite(item.id)}
-                  >
-                    <RemoveButtonText style={{ color: theme.buttonText }}>
-                      삭제
-                    </RemoveButtonText>
-                  </RemoveButton>
                 </RecipeInfo>
               </RecipeCard>
             </TouchableOpacity>
@@ -127,10 +135,11 @@ const RecipeDescription = styled.Text`
 `;
 
 const RemoveButton = styled(TouchableOpacity)`
+  position: absolute;
+  right: 2%;
   margin-top: 8px;
-  padding: 8px 12px;
+  padding: 5px 10px;
   border-radius: 10px;
-  align-self: flex-start;
 `;
 
 const RemoveButtonText = styled.Text`
