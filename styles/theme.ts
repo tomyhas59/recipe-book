@@ -1,17 +1,19 @@
 export const lightTheme = {
   background: "#ffffff",
-  text: "#222222",
-  card: "#f8f8f8",
+  text: "#000000",
+  card: "#f8f9fa",
   button: "#007bff",
   buttonText: "#ffffff",
-  border: "#dddddd",
+  border: "#ced4da",
+  primary: "#e91e63",
 };
 
 export const darkTheme = {
-  background: "#222222",
+  background: "#121212",
   text: "#ffffff",
-  card: "#333333",
-  button: "#ff6f61",
-  buttonText: "#ffffff",
-  border: "#444444",
+  card: "#1e1e1e",
+  button: "#bb86fc",
+  buttonText: "#000000",
+  border: "#303030",
+  primary: "#bb86fc",
 };

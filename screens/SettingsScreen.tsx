@@ -13,7 +13,7 @@ const SettingsScreen: React.FC = () => {
       <Title style={{ color: themeColors.text }}>설정</Title>
       <SettingCard style={{ backgroundColor: themeColors.card }}>
         <SettingText style={{ color: themeColors.text }}>
-          🌙 다크모드
+          {theme === "light" ? " 🌙 다크모드" : " ☀️ 라이트모드"}
         </SettingText>
         <Switch
           value={theme === "dark"}
@@ -28,7 +28,8 @@ const Container = styled.View`
   flex: 1;
   justify-content: center;
   align-items: center;
-  padding: 20px;
+  padding: 5px;
+  padding-top: 50px;
 `;
 
 const Title = styled.Text`

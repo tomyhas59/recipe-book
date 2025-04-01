@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FlatList, TouchableOpacity, Image } from "react-native";
+import { FlatList, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import { recipes } from "../data/recipes";
 import { useRecoilValue } from "recoil";
@@ -108,12 +108,14 @@ const CategoryScreen: React.FC<Props> = ({ navigation }) => {
 
 const Container = styled.View`
   flex: 1;
-  padding: 20px;
+  padding: 5px;
+  padding-top: 50px;
 `;
 
 const Title = styled.Text`
   font-size: 26px;
   font-weight: bold;
+  text-align: center;
   margin-bottom: 20px;
 `;
 
@@ -124,7 +126,7 @@ const Subtitle = styled.Text`
   margin-bottom: 10px;
 `;
 
-const CategoryButton = styled(TouchableOpacity)<{ selected: boolean }>`
+const CategoryButton = styled.TouchableOpacity<{ selected: boolean }>`
   padding: 14px 18px;
   border-radius: 25px;
   margin-right: 12px;
@@ -143,7 +145,7 @@ const RecipeCard = styled.View`
   border-width: 1px;
 `;
 
-const RecipeImage = styled(Image)`
+const RecipeImage = styled.Image`
   width: 90px;
   height: 90px;
   border-radius: 15px;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Image, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
 import styled from "styled-components/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -104,10 +104,11 @@ const DetailRecipeScreen: React.FC<Props> = ({ route }) => {
 
 const Container = styled.View`
   flex: 1;
-  padding: 24px;
+  padding: 5px;
+  padding-top: 50px;
 `;
 
-const RecipeImage = styled(Image)`
+const RecipeImage = styled.Image`
   width: 100%;
   height: 260px;
   border-radius: 15px;

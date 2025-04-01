@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from "react";
-import { FlatList, TouchableOpacity, Image } from "react-native";
+import { FlatList, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRecoilState, useRecoilValue } from "recoil";
@@ -55,34 +55,39 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
         <FlatList
           data={favorites}
           renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() =>
-                navigation.navigate("RecipeDetail", { recipe: item })
-              }
-            >
-              <RecipeCard style={{ backgroundColor: theme.card }}>
-                <RemoveButton
-                  style={{ backgroundColor: theme.button }}
-                  onPress={() => removeFavorite(item.id)}
+            <RecipeCard style={{ backgroundColor: theme.card }}>
+              <RemoveButton
+                style={{ backgroundColor: theme.button }}
+                onPress={() => removeFavorite(item.id)}
+              >
+                <RemoveButtonText style={{ color: theme.buttonText }}>
+                  X
+                </RemoveButtonText>
+              </RemoveButton>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate("RecipeDetail", { recipe: item })
+                }
+              >
+                <ImageWrapper>
+                  <RecipeImage source={item.image} />
+                  <Overlay>
+                    <OverlayText>보기</OverlayText>
+                  </Overlay>
+                </ImageWrapper>
+              </TouchableOpacity>
+              <RecipeInfo>
+                <RecipeName style={{ color: theme.text }}>
+                  {item.name}
+                </RecipeName>
+                <RecipeDescription
+                  style={{ color: theme.text }}
+                  numberOfLines={2}
                 >
-                  <RemoveButtonText style={{ color: theme.buttonText }}>
-                    X
-                  </RemoveButtonText>
-                </RemoveButton>
-                <RecipeImage source={item.image} />
-                <RecipeInfo>
-                  <RecipeName style={{ color: theme.text }}>
-                    {item.name}
-                  </RecipeName>
-                  <RecipeDescription
-                    style={{ color: theme.text }}
-                    numberOfLines={2}
-                  >
-                    {item.description}
-                  </RecipeDescription>
-                </RecipeInfo>
-              </RecipeCard>
-            </TouchableOpacity>
+                  {item.description}
+                </RecipeDescription>
+              </RecipeInfo>
+            </RecipeCard>
           )}
           keyExtractor={(item) => item.id.toString()}
         />
@@ -97,11 +102,13 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
 
 const Container = styled.View`
   flex: 1;
-  padding: 20px;
+  padding: 5px;
+  padding-top: 50px;
 `;
 
 const Title = styled.Text`
   font-size: 26px;
+  text-align: center;
   font-weight: bold;
   margin-bottom: 20px;
 `;
@@ -113,10 +120,30 @@ const RecipeCard = styled.View`
   margin-bottom: 12px;
 `;
 
-const RecipeImage = styled(Image)`
+const ImageWrapper = styled.View`
+  position: relative;
+`;
+
+const RecipeImage = styled.Image`
   width: 90px;
   height: 90px;
   border-radius: 15px;
+`;
+
+const Overlay = styled.View`
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 5px;
+  align-items: center;
+  border-radius: 0 0px 15px 15px;
+`;
+
+const OverlayText = styled.Text`
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
 `;
 
 const RecipeInfo = styled.View`
@@ -134,7 +161,7 @@ const RecipeDescription = styled.Text`
   font-size: 14px;
 `;
 
-const RemoveButton = styled(TouchableOpacity)`
+const RemoveButton = styled.TouchableOpacity`
   position: absolute;
   right: 2%;
   margin-top: 8px;
