@@ -1,11 +1,5 @@
 import React, { useState } from "react";
-import {
-  ScrollView,
-  TouchableOpacity,
-  Image,
-  TextInput,
-  useWindowDimensions,
-} from "react-native";
+import { ScrollView, Image, useWindowDimensions, View } from "react-native";
 import Swiper from "react-native-swiper";
 import styled from "styled-components/native";
 import { Recipe, recipes } from "../data/recipes";
@@ -50,7 +44,15 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <Container style={{ backgroundColor: themeColors.background }}>
-      <Logo>TMS Recipe</Logo>
+      <Image
+        source={require("../assets/logo.png")}
+        style={{
+          width: 400,
+          height: 150,
+          resizeMode: "contain",
+          alignSelf: "center",
+        }}
+      />
       <SwiperContainer>
         <Swiper
           autoplay
