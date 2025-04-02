@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import {
@@ -18,6 +18,8 @@ import SettingsScreen from "./screens/SettingsScreen";
 import { selectedTheme } from "./recoil/themeState";
 import { Recipe } from "./data/recipes";
 import { darkTheme } from "./styles/theme";
+import SignScreen from "./screens/SignScreen";
+import { userState } from "./recoil/userState";
 
 export type RootStackParamList = {
   Main: undefined;
@@ -31,6 +33,8 @@ const Stack = createStackNavigator<RootStackParamList>();
 const TabNavigator = () => {
   const theme = useRecoilValue(selectedTheme);
   const themeColors = theme;
+
+  const isLoggedIn = useRecoilValue(userState);
 
   return (
     <Tab.Navigator
@@ -76,17 +80,31 @@ const TabNavigator = () => {
           headerShown: false,
         }}
       />
-      <Tab.Screen
-        name="Setting"
-        component={SettingsScreen}
-        options={{
-          tabBarLabel: "설정",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="cogs" color={color} size={size} />
-          ),
-          headerShown: false,
-        }}
-      />
+      {isLoggedIn ? (
+        <Tab.Screen
+          name="Setting"
+          component={SettingsScreen}
+          options={{
+            tabBarLabel: "설정",
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="cogs" color={color} size={size} />
+            ),
+            headerShown: false,
+          }}
+        />
+      ) : (
+        <Tab.Screen
+          name="Sign"
+          component={SignScreen}
+          options={{
+            tabBarLabel: "로그인",
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="login" color={color} size={size} />
+            ),
+            headerShown: false,
+          }}
+        />
+      )}
     </Tab.Navigator>
   );
 };

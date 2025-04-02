@@ -5,6 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
 import { favoritesState } from "../recoil/favoritesState";
+import { userState } from "../recoil/userState";
 
 type Props = {
   navigation: any;
@@ -13,40 +14,47 @@ type Props = {
 const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
   const [favorites, setFavorites] = useRecoilState(favoritesState);
   const theme = useRecoilValue(selectedTheme);
+  const isLoggedIn = useRecoilValue(userState);
 
   useEffect(() => {
-    let isMounted = true;
     const loadFavorites = async () => {
       try {
         const storedFavorites = await AsyncStorage.getItem("favorites");
-        if (isMounted) {
-          setFavorites(storedFavorites ? JSON.parse(storedFavorites) : []);
-        }
+        setFavorites(storedFavorites ? JSON.parse(storedFavorites) : []);
       } catch (error) {
         console.error("즐겨찾기 불러오기 실패:", error);
       }
     };
     loadFavorites();
-    return () => {
-      isMounted = false;
-    };
   }, [setFavorites]);
 
   const removeFavorite = useCallback(
     async (id: number) => {
       try {
-        const updatedFavorites = favorites.filter((recipe) => recipe.id !== id);
-        setFavorites(updatedFavorites);
-        await AsyncStorage.setItem(
-          "favorites",
-          JSON.stringify(updatedFavorites)
-        );
+        setFavorites((prevFavorites) => {
+          const updatedFavorites = prevFavorites.filter(
+            (recipe) => recipe.id !== id
+          );
+          AsyncStorage.setItem("favorites", JSON.stringify(updatedFavorites));
+          return updatedFavorites;
+        });
       } catch (error) {
         console.error("즐겨찾기 삭제 실패:", error);
       }
     },
-    [favorites, setFavorites]
+    [setFavorites]
   );
+
+  if (!isLoggedIn)
+    return (
+      <Container style={{ backgroundColor: theme.background }}>
+        <Title style={{ color: theme.text }}>⭐ 즐겨찾기</Title>
+        <Message style={{ color: theme.text }}>로그인이 필요합니다.</Message>
+        <LoginButton onPress={() => navigation.navigate("Sign")}>
+          <LoginButtonText>로그인하기</LoginButtonText>
+        </LoginButton>
+      </Container>
+    );
 
   return (
     <Container style={{ backgroundColor: theme.background }}>
@@ -56,14 +64,6 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
           data={favorites}
           renderItem={({ item }) => (
             <RecipeCard style={{ backgroundColor: theme.card }}>
-              <RemoveButton
-                style={{ backgroundColor: theme.button }}
-                onPress={() => removeFavorite(item.id)}
-              >
-                <RemoveButtonText style={{ color: theme.buttonText }}>
-                  X
-                </RemoveButtonText>
-              </RemoveButton>
               <TouchableOpacity
                 onPress={() =>
                   navigation.navigate("RecipeDetail", { recipe: item })
@@ -87,6 +87,9 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
                   {item.description}
                 </RecipeDescription>
               </RecipeInfo>
+              <RemoveButton onPress={() => removeFavorite(item.id)}>
+                <RemoveButtonText>X</RemoveButtonText>
+              </RemoveButton>
             </RecipeCard>
           )}
           keyExtractor={(item) => item.id.toString()}
@@ -102,7 +105,7 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
 
 const Container = styled.View`
   flex: 1;
-  padding: 5px;
+  padding: 20px;
   padding-top: 50px;
 `;
 
@@ -137,7 +140,7 @@ const Overlay = styled.View`
   background-color: rgba(0, 0, 0, 0.5);
   padding: 5px;
   align-items: center;
-  border-radius: 0 0px 15px 15px;
+  border-radius: 0 0 15px 15px;
 `;
 
 const OverlayText = styled.Text`
@@ -163,21 +166,43 @@ const RecipeDescription = styled.Text`
 
 const RemoveButton = styled.TouchableOpacity`
   position: absolute;
+  top: 5%;
   right: 2%;
-  margin-top: 8px;
   padding: 5px 10px;
   border-radius: 10px;
+  background-color: red;
 `;
 
 const RemoveButtonText = styled.Text`
   font-size: 14px;
   font-weight: bold;
+  color: white;
 `;
 
 const NoFavorites = styled.Text`
   font-size: 18px;
   text-align: center;
   margin-top: 50px;
+`;
+
+const Message = styled.Text`
+  font-size: 18px;
+  text-align: center;
+  margin-top: 20px;
+`;
+
+const LoginButton = styled.TouchableOpacity`
+  background-color: #007bff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  margin-top: 20px;
+  align-self: center;
+`;
+
+const LoginButtonText = styled.Text`
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
 `;
 
 export default FavoritesScreen;
