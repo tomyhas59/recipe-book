@@ -1,5 +1,11 @@
-import React, { useState } from "react";
-import { ScrollView, Image, useWindowDimensions, View } from "react-native";
+import React, { useMemo, useRef, useState } from "react";
+import {
+  ScrollView,
+  TextInput,
+  TouchableOpacity,
+  Text,
+  View,
+} from "react-native";
 import Swiper from "react-native-swiper";
 import styled from "styled-components/native";
 import { Recipe, recipes } from "../data/recipes";
@@ -13,15 +19,30 @@ type Props = {
 const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const themeColors = useRecoilValue(selectedTheme);
   const [searchQuery, setSearchQuery] = useState("");
-  const { width } = useWindowDimensions();
+  const [filteredRecipes, setFilteredRecipes] = useState<Recipe[] | null>(null);
 
-  const filteredRecipes = recipes.filter((recipe) =>
-    recipe.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const initialRecommendRecipes = useMemo(
+    () => [...recipes].sort(() => Math.random() - 0.5).slice(0, 5),
+    []
   );
 
-  const recommendRecipes = [...recipes]
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 5);
+  const [recommendRecipes] = useState(initialRecommendRecipes);
+
+  const handleSearch = () => {
+    if (searchQuery.trim() === "") {
+      setFilteredRecipes(null);
+    } else {
+      const filtered = recipes.filter((recipe) =>
+        recipe.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredRecipes(filtered);
+    }
+  };
+
+  const handleReset = () => {
+    setSearchQuery("");
+    setFilteredRecipes(null);
+  };
 
   const renderItem = ({ item }: { item: Recipe }) => (
     <Card
@@ -44,40 +65,49 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <Container style={{ backgroundColor: themeColors.background }}>
-      <Image
-        source={require("../assets/logo.png")}
-        style={{
-          width: 400,
-          height: 150,
-          resizeMode: "contain",
-          alignSelf: "center",
-        }}
-      />
-      <SwiperContainer>
-        <Swiper
-          autoplay
-          autoplayTimeout={3}
-          showsPagination
-          dotColor="#5e5e5e"
-          activeDotColor="#465bf9"
-        >
-          {recommendRecipes.map((item) => (
-            <Slide key={item.id}>
-              <SlideImage source={item.image} resizeMode="cover" />
-            </Slide>
-          ))}
-        </Swiper>
-      </SwiperContainer>
+      <ScrollView stickyHeaderIndices={[2]}>
+        <Header>
+          <HeaderText>Recipe Book</HeaderText>
+        </Header>
+        {filteredRecipes ? null : (
+          <SwiperContainer>
+            <Swiper
+              autoplay
+              autoplayTimeout={3}
+              showsPagination
+              dotColor="#bbb"
+              activeDotColor="#ff6b6b"
+            >
+              {recommendRecipes.map((item) => (
+                <Slide key={item.id}>
+                  <SlideImage source={item.image} resizeMode="cover" />
+                </Slide>
+              ))}
+            </Swiper>
+          </SwiperContainer>
+        )}
 
-      <SearchBar
-        placeholder="요리를 검색하세요."
-        placeholderTextColor="#777"
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-      />
+        <StickySearchBar>
+          <SearchBar
+            placeholder="요리를 검색하세요."
+            placeholderTextColor="#777"
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onSubmitEditing={handleSearch}
+          />
+          <SearchButton onPress={handleSearch}>
+            <SearchButtonText>검색</SearchButtonText>
+          </SearchButton>
+          <ResetButton onPress={handleReset}>
+            <ResetButtonText>초기화</ResetButtonText>
+          </ResetButton>
+        </StickySearchBar>
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-        {filteredRecipes.map((item) => renderItem({ item }))}
+        {(filteredRecipes ?? recipes).length > 0 ? (
+          (filteredRecipes ?? recipes).map((item) => renderItem({ item }))
+        ) : (
+          <NoResultsText>검색된 요리가 없습니다...</NoResultsText>
+        )}
       </ScrollView>
     </Container>
   );
@@ -85,24 +115,24 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
 const Container = styled.View`
   flex: 1;
-  padding: 5px;
   padding-top: 50px;
 `;
 
-const Logo = styled.Text`
-  font-size: 30px;
+const Header = styled.View`
+  padding: 20px;
+  align-items: center;
+  justify-content: center;
+  background-color: #ff6b6b;
+`;
+
+const HeaderText = styled.Text`
+  font-size: 24px;
   font-weight: bold;
-  text-align: center;
-  color: #ff4500;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  font-family: "Cochin";
-  margin-bottom: 15px;
+  color: white;
 `;
 
 const SwiperContainer = styled.View`
-  height: 230px;
-  margin-bottom: 20px;
+  height: 220px;
 `;
 
 const Slide = styled.View`
@@ -110,24 +140,66 @@ const Slide = styled.View`
 `;
 
 const SlideImage = styled.Image`
-  width: 85%;
+  width: 90%;
   height: 200px;
-  border-radius: 18px;
+  border-radius: 14px;
+`;
+
+const StickySearchBar = styled.View`
+  flex-direction: row;
+  background-color: white;
+  padding: 5px;
+  border-bottom-width: 1px;
+  border-color: #ddd;
+  z-index: 10;
+  align-items: center;
 `;
 
 const SearchBar = styled.TextInput`
-  background-color: #f9f9f9;
+  flex: 1;
+  background-color: white;
   padding: 14px;
   border-radius: 14px;
   font-size: 16px;
-  margin-bottom: 18px;
-  border: 1px solid #ccc;
+  border-width: 1px;
+  border-color: #ddd;
+`;
+
+const SearchButton = styled.TouchableOpacity`
+  background-color: #ff6b6b;
+  padding: 14px 10px;
+  border-radius: 14px;
+`;
+
+const SearchButtonText = styled.Text`
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+`;
+const ResetButton = styled.TouchableOpacity`
+  background-color: #ccc;
+  padding: 14px 10px;
+  border-radius: 14px;
+`;
+
+const ResetButtonText = styled.Text`
+  color: black;
+  font-size: 16px;
+  font-weight: bold;
+`;
+
+const NoResultsText = styled.Text`
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ff6b6b;
+  margin-top: 20px;
 `;
 
 const Card = styled.TouchableOpacity`
-  border-radius: 16px;
+  border-radius: 14px;
   overflow: hidden;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   flex-direction: row;
   border-width: 1px;
   border-color: #ddd;
@@ -135,10 +207,10 @@ const Card = styled.TouchableOpacity`
 `;
 
 const RecipeImage = styled.Image`
-  width: 110px;
-  height: 110px;
-  border-top-left-radius: 16px;
-  border-bottom-left-radius: 16px;
+  width: 100px;
+  height: 100px;
+  border-top-left-radius: 14px;
+  border-bottom-left-radius: 14px;
 `;
 
 const CardContent = styled.View`
@@ -150,7 +222,6 @@ const CardContent = styled.View`
 const RecipeName = styled.Text`
   font-size: 18px;
   font-weight: bold;
-  color: #333;
 `;
 
 const Description = styled.Text`
