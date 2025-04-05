@@ -1,19 +1,12 @@
 import React from "react";
-import { Switch, TouchableOpacity } from "react-native";
-import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
+import { Switch } from "react-native";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { themeState, selectedTheme } from "../recoil/themeState";
 import styled from "styled-components/native";
-import { userState } from "../recoil/userState";
 
 const SettingsScreen: React.FC = () => {
   const [theme, setTheme] = useRecoilState(themeState);
   const themeColors = useRecoilValue(selectedTheme);
-
-  const setIsLoggedIn = useSetRecoilState(userState);
-
-  const handleLogOut = () => {
-    setIsLoggedIn(false);
-  };
 
   return (
     <Container style={{ backgroundColor: themeColors.background }}>
@@ -27,13 +20,6 @@ const SettingsScreen: React.FC = () => {
             value={theme === "dark"}
             onValueChange={() => setTheme(theme === "light" ? "dark" : "light")}
           />
-        </SettingCard>
-        <SettingCard style={{ backgroundColor: themeColors.card }}>
-          <TouchableOpacity onPress={handleLogOut}>
-            <SettingText style={{ color: themeColors.text }}>
-              ↩️ 로그아웃
-            </SettingText>
-          </TouchableOpacity>
         </SettingCard>
       </SettingCardWrapper>
     </Container>

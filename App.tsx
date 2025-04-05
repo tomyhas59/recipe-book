@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import {
@@ -7,7 +7,7 @@ import {
   DarkTheme,
 } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { RecoilRoot, useRecoilValue } from "recoil";
+import { RecoilRoot, useRecoilState, useRecoilValue } from "recoil";
 
 import HomeScreen from "./screens/HomeScreen";
 import RecipeDetailScreen from "./screens/RecipeDetailScreen";
@@ -15,11 +15,12 @@ import FavoritesScreen from "./screens/FavoritesScreen";
 import CategoryScreen from "./screens/CategoryScreen";
 import SettingsScreen from "./screens/SettingsScreen";
 
-import { selectedTheme } from "./recoil/themeState";
+import { selectedTheme, themeState } from "./recoil/themeState";
 import { Recipe } from "./data/recipes";
 import { darkTheme } from "./styles/theme";
 import SignScreen from "./screens/SignScreen";
 import { userState } from "./recoil/userState";
+import { TouchableOpacity, View, Text } from "react-native";
 
 export type RootStackParamList = {
   Main: undefined;
@@ -31,10 +32,10 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 // ✅ 탭 네비게이터
 const TabNavigator = () => {
-  const theme = useRecoilValue(selectedTheme);
-  const themeColors = theme;
+  const [theme, setTheme] = useRecoilState(themeState);
+  const themeColors = useRecoilValue(selectedTheme);
 
-  const isLoggedIn = useRecoilValue(userState);
+  const [isLoggedIn, setIsLoggedIn] = useRecoilState(userState);
 
   return (
     <Tab.Navigator
@@ -80,19 +81,44 @@ const TabNavigator = () => {
           headerShown: false,
         }}
       />
-      {isLoggedIn ? (
-        <Tab.Screen
-          name="Setting"
-          component={SettingsScreen}
-          options={{
-            tabBarLabel: "설정",
-            tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="cogs" color={color} size={size} />
-            ),
-            headerShown: false,
-          }}
-        />
-      ) : (
+
+      <Tab.Screen
+        name="darkMode"
+        component={() => null}
+        options={{
+          tabBarLabel: theme === "light" ? " 🌙 다크모드" : " ☀️ 라이트모드",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons
+              name={theme === "light" ? "weather-night" : "white-balance-sunny"}
+              color={color}
+              size={size}
+            />
+          ),
+          headerShown: false,
+          tabBarButton: () => (
+            <TouchableOpacity
+              onPress={() => setTheme(theme === "light" ? "dark" : "light")}
+              style={{
+                flex: 1,
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <View style={{ alignItems: "center" }}>
+                <MaterialCommunityIcons
+                  name={
+                    theme === "light" ? "weather-night" : "white-balance-sunny"
+                  }
+                  color={themeColors.primary}
+                  size={24}
+                />
+              </View>
+            </TouchableOpacity>
+          ),
+        }}
+      />
+
+      {!isLoggedIn ? (
         <Tab.Screen
           name="Sign"
           component={SignScreen}
@@ -102,6 +128,39 @@ const TabNavigator = () => {
               <MaterialCommunityIcons name="login" color={color} size={size} />
             ),
             headerShown: false,
+          }}
+        />
+      ) : (
+        <Tab.Screen
+          name="Logout"
+          component={() => null}
+          options={{
+            tabBarLabel: "로그아웃",
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="logout" color={color} size={size} />
+            ),
+            headerShown: false,
+            tabBarButton: () => (
+              <TouchableOpacity
+                onPress={() => setIsLoggedIn(false)}
+                style={{
+                  flex: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <View style={{ alignItems: "center" }}>
+                  <MaterialCommunityIcons
+                    name="logout"
+                    color={themeColors.primary}
+                    size={24}
+                  />
+                  <Text style={{ color: themeColors.primary, fontSize: 12 }}>
+                    로그아웃
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ),
           }}
         />
       )}

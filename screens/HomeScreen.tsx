@@ -1,11 +1,5 @@
-import React, { useMemo, useRef, useState } from "react";
-import {
-  ScrollView,
-  TextInput,
-  TouchableOpacity,
-  Text,
-  View,
-} from "react-native";
+import React, { useMemo, useState } from "react";
+import { ScrollView } from "react-native";
 import Swiper from "react-native-swiper";
 import styled from "styled-components/native";
 import { Recipe, recipes } from "../data/recipes";
@@ -66,7 +60,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <Container style={{ backgroundColor: themeColors.background }}>
       <ScrollView stickyHeaderIndices={[2]}>
-        <Header>
+        <Header style={{ backgroundColor: themeColors.primary }}>
           <HeaderText>Recipe Book</HeaderText>
         </Header>
         {filteredRecipes ? null : (
@@ -87,15 +81,28 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
           </SwiperContainer>
         )}
 
-        <StickySearchBar>
+        <StickySearchBar
+          style={{
+            backgroundColor: themeColors.background,
+            color: themeColors.text,
+            borderColor: themeColors.border,
+          }}
+        >
           <SearchBar
             placeholder="요리를 검색하세요."
-            placeholderTextColor="#777"
             value={searchQuery}
             onChangeText={setSearchQuery}
             onSubmitEditing={handleSearch}
+            style={{
+              backgroundColor: themeColors.inputBackground,
+              color: themeColors.text,
+              borderColor: themeColors.border,
+            }}
           />
-          <SearchButton onPress={handleSearch}>
+          <SearchButton
+            onPress={handleSearch}
+            style={{ backgroundColor: themeColors.primary }}
+          >
             <SearchButtonText>검색</SearchButtonText>
           </SearchButton>
           <ResetButton onPress={handleReset}>
@@ -122,7 +129,6 @@ const Header = styled.View`
   padding: 20px;
   align-items: center;
   justify-content: center;
-  background-color: #ff6b6b;
 `;
 
 const HeaderText = styled.Text`

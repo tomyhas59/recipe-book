@@ -40,7 +40,7 @@ const CategoryScreen: React.FC<Props> = ({ navigation }) => {
             style={{
               backgroundColor:
                 item === selectedCategory
-                  ? themeColors.button
+                  ? themeColors.primary
                   : themeColors.card,
             }}
           >

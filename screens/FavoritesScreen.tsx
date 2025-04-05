@@ -50,7 +50,10 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
       <Container style={{ backgroundColor: theme.background }}>
         <Title style={{ color: theme.text }}>⭐ 즐겨찾기</Title>
         <Message style={{ color: theme.text }}>로그인이 필요합니다.</Message>
-        <LoginButton onPress={() => navigation.navigate("Sign")}>
+        <LoginButton
+          onPress={() => navigation.navigate("Sign")}
+          style={{ backgroundColor: theme.primary }}
+        >
           <LoginButtonText>로그인하기</LoginButtonText>
         </LoginButton>
       </Container>
@@ -87,7 +90,10 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
                   {item.description}
                 </RecipeDescription>
               </RecipeInfo>
-              <RemoveButton onPress={() => removeFavorite(item.id)}>
+              <RemoveButton
+                style={{ backgroundColor: theme.primary }}
+                onPress={() => removeFavorite(item.id)}
+              >
                 <RemoveButtonText>X</RemoveButtonText>
               </RemoveButton>
             </RecipeCard>
@@ -166,11 +172,10 @@ const RecipeDescription = styled.Text`
 
 const RemoveButton = styled.TouchableOpacity`
   position: absolute;
-  top: 5%;
-  right: 2%;
+  top: 10px;
+  right: 10px;
   padding: 5px 10px;
   border-radius: 10px;
-  background-color: red;
 `;
 
 const RemoveButtonText = styled.Text`
@@ -192,7 +197,6 @@ const Message = styled.Text`
 `;
 
 const LoginButton = styled.TouchableOpacity`
-  background-color: #007bff;
   padding: 12px 20px;
   border-radius: 10px;
   margin-top: 20px;
