@@ -1,8 +1,17 @@
 import React, { useState } from "react";
-import { useSetRecoilState, useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
-import { userState } from "../recoil/userState";
+
 import { selectedTheme } from "../recoil/themeState";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { auth } from "../firebase";
+import { Alert } from "react-native";
+import LoadingOverlay from "../components/LoadingOverlay";
+import { loadingState } from "../recoil/loadingState";
 
 type Props = {
   navigation: any;
@@ -13,24 +22,47 @@ const SignScreen: React.FC<Props> = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const setIsLoggedIn = useSetRecoilState(userState);
   const themeColors = useRecoilValue(selectedTheme);
 
-  const handleSignIn = () => {
-    setIsLoggedIn(true);
+  const setLoading = useSetRecoilState(loadingState);
+
+  const handleSignIn = async () => {
+    setLoading(true);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSignUp = () => {
-    navigation.navigate("Home");
+  const handleSignUp = async () => {
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+      Alert.alert("회원가입 성공!");
+      navigation.navigate("Home");
+    } catch (error: any) {
+      console.log("회원가입 에러:", error.message);
+    } finally {
+      setLoading(false); // 종료
+    }
+  };
+
+  const toggleSign = (menu: "signIn" | "signUp") => {
+    setConfirmPassword("");
+    setEmail("");
+    setPassword("");
+    setScreen(menu);
   };
 
   return (
     <Container style={{ backgroundColor: themeColors.background }}>
+      <LoadingOverlay />
       <Card style={{ backgroundColor: themeColors.card }}>
         <TabSelector style={{ backgroundColor: themeColors.background }}>
           <TabButton
             isActive={screen === "signIn"}
-            onPress={() => setScreen("signIn")}
+            onPress={() => toggleSign("signIn")}
             style={{
               backgroundColor:
                 screen === "signIn" ? themeColors.primary : "transparent",
@@ -50,7 +82,7 @@ const SignScreen: React.FC<Props> = ({ navigation }) => {
           </TabButton>
           <TabButton
             isActive={screen === "signUp"}
-            onPress={() => setScreen("signUp")}
+            onPress={() => toggleSign("signUp")}
             style={{
               backgroundColor:
                 screen === "signUp" ? themeColors.primary : "transparent",
@@ -72,6 +104,7 @@ const SignScreen: React.FC<Props> = ({ navigation }) => {
 
         <Input
           placeholder="Email"
+          placeholderTextColor={themeColors.placeholder}
           value={email}
           onChangeText={setEmail}
           keyboardType="email-address"
@@ -84,6 +117,7 @@ const SignScreen: React.FC<Props> = ({ navigation }) => {
         />
         <Input
           placeholder="Password"
+          placeholderTextColor={themeColors.placeholder}
           value={password}
           onChangeText={setPassword}
           secureTextEntry
@@ -96,6 +130,7 @@ const SignScreen: React.FC<Props> = ({ navigation }) => {
         {screen === "signUp" && (
           <Input
             placeholder="Confirm Password"
+            placeholderTextColor={themeColors.placeholder}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
             secureTextEntry

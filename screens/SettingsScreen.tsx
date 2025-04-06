@@ -14,12 +14,8 @@ const SettingsScreen: React.FC = () => {
       <SettingCardWrapper>
         <SettingCard style={{ backgroundColor: themeColors.card }}>
           <SettingText style={{ color: themeColors.text }}>
-            {theme === "light" ? " 🌙 다크모드" : " ☀️ 라이트모드"}
+            설정 준비 중입니다...
           </SettingText>
-          <Switch
-            value={theme === "dark"}
-            onValueChange={() => setTheme(theme === "light" ? "dark" : "light")}
-          />
         </SettingCard>
       </SettingCardWrapper>
     </Container>

@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from "react";
-import { ScrollView } from "react-native";
+import { ScrollView, Text } from "react-native";
 import Swiper from "react-native-swiper";
 import styled from "styled-components/native";
 import { Recipe, recipes } from "../data/recipes";
 import { useRecoilValue } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
+import { userState } from "../recoil/userState";
 
 type Props = {
   navigation: any;
@@ -14,6 +15,8 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const themeColors = useRecoilValue(selectedTheme);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredRecipes, setFilteredRecipes] = useState<Recipe[] | null>(null);
+
+  const user = useRecoilValue(userState);
 
   const initialRecommendRecipes = useMemo(
     () => [...recipes].sort(() => Math.random() - 0.5).slice(0, 5),
@@ -61,6 +64,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     <Container style={{ backgroundColor: themeColors.background }}>
       <ScrollView stickyHeaderIndices={[2]}>
         <Header style={{ backgroundColor: themeColors.primary }}>
+          {user && <UserName>{user.email?.split("@")[0]}</UserName>}
           <HeaderText>Recipe Book</HeaderText>
         </Header>
         {filteredRecipes ? null : (
@@ -84,12 +88,12 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
         <StickySearchBar
           style={{
             backgroundColor: themeColors.background,
-            color: themeColors.text,
             borderColor: themeColors.border,
           }}
         >
           <SearchBar
             placeholder="요리를 검색하세요."
+            placeholderTextColor={themeColors.placeholder}
             value={searchQuery}
             onChangeText={setSearchQuery}
             onSubmitEditing={handleSearch}
@@ -129,8 +133,17 @@ const Header = styled.View`
   padding: 20px;
   align-items: center;
   justify-content: center;
+  position: relative;
 `;
 
+const UserName = styled.Text`
+  position: absolute;
+  left: 20%;
+  background-color: #fff;
+  color: #000;
+  padding: 8px;
+  border-radius: 10px;
+`;
 const HeaderText = styled.Text`
   font-size: 24px;
   font-weight: bold;
@@ -153,10 +166,9 @@ const SlideImage = styled.Image`
 
 const StickySearchBar = styled.View`
   flex-direction: row;
-  background-color: white;
   padding: 5px;
   border-bottom-width: 1px;
-  border-color: #ddd;
+
   z-index: 10;
   align-items: center;
 `;

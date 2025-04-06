@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createStackNavigator } from "@react-navigation/stack";
 import {
@@ -7,20 +7,27 @@ import {
   DarkTheme,
 } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { RecoilRoot, useRecoilState, useRecoilValue } from "recoil";
+import {
+  RecoilRoot,
+  useRecoilState,
+  useRecoilValue,
+  useSetRecoilState,
+} from "recoil";
+import { TouchableOpacity, View, Text } from "react-native";
 
 import HomeScreen from "./screens/HomeScreen";
 import RecipeDetailScreen from "./screens/RecipeDetailScreen";
 import FavoritesScreen from "./screens/FavoritesScreen";
 import CategoryScreen from "./screens/CategoryScreen";
-import SettingsScreen from "./screens/SettingsScreen";
+import SignScreen from "./screens/SignScreen";
 
 import { selectedTheme, themeState } from "./recoil/themeState";
+import { userState } from "./recoil/userState";
+
 import { Recipe } from "./data/recipes";
 import { darkTheme } from "./styles/theme";
-import SignScreen from "./screens/SignScreen";
-import { userState } from "./recoil/userState";
-import { TouchableOpacity, View, Text } from "react-native";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase";
 
 export type RootStackParamList = {
   Main: undefined;
@@ -30,12 +37,10 @@ export type RootStackParamList = {
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator<RootStackParamList>();
 
-// ✅ 탭 네비게이터
 const TabNavigator = () => {
   const [theme, setTheme] = useRecoilState(themeState);
   const themeColors = useRecoilValue(selectedTheme);
-
-  const [isLoggedIn, setIsLoggedIn] = useRecoilState(userState);
+  const [isUser, setIsUser] = useRecoilState(userState);
 
   return (
     <Tab.Navigator
@@ -81,10 +86,8 @@ const TabNavigator = () => {
           headerShown: false,
         }}
       />
-
       <Tab.Screen
         name="darkMode"
-        component={() => null}
         options={{
           tabBarLabel: theme === "light" ? " 🌙 다크모드" : " ☀️ 라이트모드",
           tabBarIcon: ({ color, size }) => (
@@ -116,9 +119,11 @@ const TabNavigator = () => {
             </TouchableOpacity>
           ),
         }}
-      />
+      >
+        {() => null}
+      </Tab.Screen>
 
-      {!isLoggedIn ? (
+      {!isUser ? (
         <Tab.Screen
           name="Sign"
           component={SignScreen}
@@ -133,7 +138,6 @@ const TabNavigator = () => {
       ) : (
         <Tab.Screen
           name="Logout"
-          component={() => null}
           options={{
             tabBarLabel: "로그아웃",
             tabBarIcon: ({ color, size }) => (
@@ -142,7 +146,7 @@ const TabNavigator = () => {
             headerShown: false,
             tabBarButton: () => (
               <TouchableOpacity
-                onPress={() => setIsLoggedIn(false)}
+                onPress={() => setIsUser(null)}
                 style={{
                   flex: 1,
                   justifyContent: "center",
@@ -162,7 +166,9 @@ const TabNavigator = () => {
               </TouchableOpacity>
             ),
           }}
-        />
+        >
+          {() => null}
+        </Tab.Screen>
       )}
     </Tab.Navigator>
   );
@@ -172,6 +178,14 @@ const TabNavigator = () => {
 const AppNavigator = () => {
   const theme = useRecoilValue(selectedTheme);
   const navigationTheme = theme === darkTheme ? DarkTheme : DefaultTheme;
+  const setUser = useSetRecoilState(userState);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+    });
+    return unsubscribe;
+  }, []);
 
   return (
     <NavigationContainer theme={navigationTheme}>
