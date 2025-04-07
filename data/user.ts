@@ -5,3 +5,11 @@ export interface User {
   displayName?: string | null;
   photoURL?: string | null;
 }
+
+export interface Favorite {
+  id: string;
+  userId: string;
+  recipeId: string;
+  name: string;
+  description: string;
+}

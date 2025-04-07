@@ -1,8 +1,8 @@
 import { atom } from "recoil";
 
-import { Recipe } from "../data/recipes";
+import { Favorite } from "../data/user";
 
-export const favoritesState = atom<Recipe[]>({
+export const favoritesState = atom<Favorite[]>({
   key: "favoritesState",
   default: [],
 });

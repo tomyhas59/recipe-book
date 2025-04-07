@@ -8,7 +8,7 @@ export interface Ingredient {
 }
 
 export interface Recipe {
-  id: number;
+  id: string;
   name: string;
   description: string;
   ingredients: Ingredient[];
@@ -21,7 +21,7 @@ export interface Recipe {
 export const recipes: Recipe[] = [
   // 한식
   {
-    id: 1,
+    id: "1",
     name: "김치찌개",
     description: "한국의 대표적인 찌개로, 매운 맛과 깊은 국물 맛이 특징입니다.",
     ingredients: [
@@ -41,7 +41,7 @@ export const recipes: Recipe[] = [
     image: require("../assets/kimchi.png"),
   },
   {
-    id: 2,
+    id: "2",
     name: "불고기",
     description:
       "달콤하고 짭짤한 양념에 재운 고기를 구워 먹는 한국의 전통 음식입니다.",
@@ -61,7 +61,7 @@ export const recipes: Recipe[] = [
     image: require("../assets/bulgo.png"),
   },
   {
-    id: 3,
+    id: "3",
     name: "비빔밥",
     description: "다양한 나물과 고기를 비벼서 먹는 한 그릇 음식입니다.",
     ingredients: [
@@ -82,7 +82,7 @@ export const recipes: Recipe[] = [
 
   // 중식
   {
-    id: 4,
+    id: "4",
     name: "짜장면",
     description:
       "중국의 대표적인 면 요리로, 검은 콩장과 고기를 볶은 소스가 특징입니다.",
@@ -102,7 +102,7 @@ export const recipes: Recipe[] = [
     image: require("../assets/jjajang.png"),
   },
   {
-    id: 5,
+    id: "5",
     name: "마파두부",
     description: "매운 두부 요리로, 중국에서 유래한 인기 있는 반찬입니다.",
     ingredients: [
@@ -121,7 +121,7 @@ export const recipes: Recipe[] = [
     image: require("../assets/mapa.png"),
   },
   {
-    id: 6,
+    id: "6",
     name: "탕수육",
     description:
       "바삭하게 튀긴 돼지고기와 새콤달콤한 소스가 어우러진 요리입니다.",
@@ -142,7 +142,7 @@ export const recipes: Recipe[] = [
 
   // 양식
   {
-    id: 7,
+    id: "7",
     name: "스파게티",
     description: "이탈리아의 대표적인 면 요리로, 다양한 소스를 얹어 먹습니다.",
     ingredients: [
@@ -161,7 +161,7 @@ export const recipes: Recipe[] = [
     image: require("../assets/spa.png"),
   },
   {
-    id: 8,
+    id: "8",
     name: "피자",
     description:
       "이탈리아의 대표적인 음식으로, 다양한 토핑과 치즈가 특징입니다.",
@@ -180,7 +180,7 @@ export const recipes: Recipe[] = [
     image: require("../assets/pizza.png"),
   },
   {
-    id: 9,
+    id: "9",
     name: "리조또",
     description:
       "이탈리아의 크리미한 쌀 요리로, 다양한 재료로 변화를 줄 수 있습니다.",
@@ -202,7 +202,7 @@ export const recipes: Recipe[] = [
 
   // 일식
   {
-    id: 10,
+    id: "10",
     name: "초밥",
     description:
       "일본의 전통적인 요리로, 신선한 생선과 밥을 결합한 요리입니다.",
@@ -220,7 +220,7 @@ export const recipes: Recipe[] = [
     image: require("../assets/chobab.png"),
   },
   {
-    id: 11,
+    id: "11",
     name: "돈까스",
     description:
       "일본식 튀김 요리로, 바삭한 튀김옷과 부드러운 고기가 특징입니다.",
@@ -239,7 +239,7 @@ export const recipes: Recipe[] = [
     image: require("../assets/donga.png"),
   },
   {
-    id: 12,
+    id: "12",
     name: "우동",
     description:
       "일본의 대표적인 면 요리로, 두꺼운 면발과 진한 국물이 특징입니다.",

@@ -1,11 +1,14 @@
 import React, { useCallback, useEffect } from "react";
 import { FlatList, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
 import { favoritesState } from "../recoil/favoritesState";
 import { userState } from "../recoil/userState";
+import {
+  getFavorites,
+  removeFavoriteFromFirestore,
+} from "../services/favorites";
 
 type Props = {
   navigation: any;
@@ -15,34 +18,34 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
   const [favorites, setFavorites] = useRecoilState(favoritesState);
   const theme = useRecoilValue(selectedTheme);
   const isLoggedIn = useRecoilValue(userState);
+  const user = useRecoilValue(userState);
 
   useEffect(() => {
-    const loadFavorites = async () => {
-      try {
-        const storedFavorites = await AsyncStorage.getItem("favorites");
-        setFavorites(storedFavorites ? JSON.parse(storedFavorites) : []);
-      } catch (error) {
-        console.error("즐겨찾기 불러오기 실패:", error);
-      }
+    const fetchFavorites = async () => {
+      if (!user?.uid) return;
+      const result = await getFavorites(user.uid);
+      setFavorites(result);
     };
-    loadFavorites();
-  }, [setFavorites]);
+    fetchFavorites();
+  }, [user, setFavorites]);
 
   const removeFavorite = useCallback(
-    async (id: number) => {
+    async (recipeId: string) => {
+      if (!user?.uid) return;
+
       try {
-        setFavorites((prevFavorites) => {
-          const updatedFavorites = prevFavorites.filter(
-            (recipe) => recipe.id !== id
-          );
-          AsyncStorage.setItem("favorites", JSON.stringify(updatedFavorites));
-          return updatedFavorites;
-        });
+        // Firestore에서 삭제
+        await removeFavoriteFromFirestore(user.uid, recipeId);
+
+        // 로컬 상태 업데이트
+        setFavorites((prevFavorites) =>
+          prevFavorites.filter((recipe) => recipe.recipeId !== recipeId)
+        );
       } catch (error) {
         console.error("즐겨찾기 삭제 실패:", error);
       }
     },
-    [setFavorites]
+    [user, setFavorites]
   );
 
   if (!isLoggedIn)
@@ -72,12 +75,12 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
                   navigation.navigate("RecipeDetail", { recipe: item })
                 }
               >
-                <ImageWrapper>
+                {/*      <ImageWrapper>
                   <RecipeImage source={item.image} />
                   <Overlay>
                     <OverlayText>보기</OverlayText>
                   </Overlay>
-                </ImageWrapper>
+                </ImageWrapper> */}
               </TouchableOpacity>
               <RecipeInfo>
                 <RecipeName style={{ color: theme.text }}>

@@ -5,9 +5,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
 import { StackScreenProps } from "@react-navigation/stack";
-import { Recipe } from "../data/recipes";
 import { RootStackParamList } from "../App";
 import { favoritesState } from "../recoil/favoritesState";
+import { userState } from "../recoil/userState";
+import { Favorite } from "../data/user";
+import {
+  addToFavorites,
+  removeFavoriteFromFirestore,
+} from "../services/favorites";
 
 type Props = StackScreenProps<RootStackParamList, "RecipeDetail">;
 
@@ -15,6 +20,7 @@ const DetailRecipeScreen: React.FC<Props> = ({ route }) => {
   const { recipe } = route.params;
   const [isFavorite, setIsFavorite] = useState(false);
   const themeColors = useRecoilValue(selectedTheme);
+  const user = useRecoilValue(userState);
 
   const [favorites, setFavorites] = useRecoilState(favoritesState);
 
@@ -23,7 +29,9 @@ const DetailRecipeScreen: React.FC<Props> = ({ route }) => {
       try {
         const storedFavorites = await AsyncStorage.getItem("favorites");
         const favorites = storedFavorites ? JSON.parse(storedFavorites) : [];
-        setIsFavorite(favorites.some((fav: Recipe) => fav.id === recipe.id));
+        setIsFavorite(
+          favorites.some((fav: Favorite) => fav.recipeId === recipe.id)
+        );
       } catch (error) {
         console.error("즐겨찾기 확인 오류:", error);
       }
@@ -32,19 +40,34 @@ const DetailRecipeScreen: React.FC<Props> = ({ route }) => {
   }, [recipe]);
 
   const toggleFavorite = async () => {
+    if (!user) return;
     try {
       let updatedFavorites = [...favorites];
 
       if (isFavorite) {
-        updatedFavorites = updatedFavorites.filter(
-          (fav) => fav.id !== recipe.id
+        const favoriteToRemove = favorites.find(
+          (fav) => fav.recipeId === recipe.id
         );
+
+        if (favoriteToRemove?.id) {
+          await removeFavoriteFromFirestore(user.uid, favoriteToRemove.id);
+          updatedFavorites = updatedFavorites.filter(
+            (fav) => fav.recipeId !== recipe.id
+          );
+        }
       } else {
-        updatedFavorites.push(recipe);
+        await addToFavorites(recipe, user.uid);
+        updatedFavorites.push({
+          id: "", // 추후 getFavorites로 다시 불러올 때 ID 포함됨
+          userId: user.uid,
+          recipeId: recipe.id,
+          name: recipe.name,
+          image: recipe.image,
+          description: recipe.description,
+        });
       }
 
       setFavorites(updatedFavorites);
-      await AsyncStorage.setItem("favorites", JSON.stringify(updatedFavorites));
       setIsFavorite(!isFavorite);
     } catch (error) {
       console.error("즐겨찾기 저장 오류:", error);

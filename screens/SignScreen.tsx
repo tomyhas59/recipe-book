@@ -44,7 +44,7 @@ const SignScreen: React.FC<Props> = ({ navigation }) => {
     } catch (error: any) {
       console.log("회원가입 에러:", error.message);
     } finally {
-      setLoading(false); // 종료
+      setLoading(false);
     }
   };
 
