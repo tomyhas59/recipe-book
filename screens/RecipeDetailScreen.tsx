@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ScrollView, View } from "react-native";
 import styled from "styled-components/native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
 import { StackScreenProps } from "@react-navigation/stack";
@@ -12,6 +11,7 @@ import { Favorite } from "../data/user";
 import {
   addToFavorites,
   removeFavoriteFromFirestore,
+  getFavorites,
 } from "../services/favorites";
 
 type Props = StackScreenProps<RootStackParamList, "RecipeDetail">;
@@ -26,21 +26,25 @@ const DetailRecipeScreen: React.FC<Props> = ({ route }) => {
 
   useEffect(() => {
     const checkFavorite = async () => {
-      try {
-        const storedFavorites = await AsyncStorage.getItem("favorites");
-        const favorites = storedFavorites ? JSON.parse(storedFavorites) : [];
-        setIsFavorite(
-          favorites.some((fav: Favorite) => fav.recipeId === recipe.id)
-        );
-      } catch (error) {
-        console.error("즐겨찾기 확인 오류:", error);
+      if (user) {
+        try {
+          // Firestore에서 즐겨찾기 목록을 가져옵니다.
+          const userFavorites = await getFavorites(user.uid);
+          setFavorites(userFavorites);
+          setIsFavorite(
+            userFavorites.some((fav: Favorite) => fav.recipeId === recipe.id)
+          );
+        } catch (error) {
+          console.error("즐겨찾기 확인 오류:", error);
+        }
       }
     };
     checkFavorite();
-  }, [recipe]);
+  }, [recipe, user]);
 
   const toggleFavorite = async () => {
     if (!user) return;
+
     try {
       let updatedFavorites = [...favorites];
 
@@ -57,14 +61,17 @@ const DetailRecipeScreen: React.FC<Props> = ({ route }) => {
         }
       } else {
         await addToFavorites(recipe, user.uid);
-        updatedFavorites.push({
-          id: "", // 추후 getFavorites로 다시 불러올 때 ID 포함됨
-          userId: user.uid,
-          recipeId: recipe.id,
-          name: recipe.name,
-          image: recipe.image,
-          description: recipe.description,
-        });
+
+        updatedFavorites = [
+          ...updatedFavorites,
+          {
+            id: "",
+            userId: user.uid,
+            recipeId: recipe.id,
+            name: recipe.name,
+            description: recipe.description,
+          },
+        ];
       }
 
       setFavorites(updatedFavorites);

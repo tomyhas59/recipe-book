@@ -8,10 +8,11 @@ import {
   signInWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebaseConfig";
 import { Alert } from "react-native";
 import LoadingOverlay from "../components/LoadingOverlay";
 import { loadingState } from "../recoil/loadingState";
+import { doc, setDoc } from "firebase/firestore";
 
 type Props = {
   navigation: any;
@@ -37,8 +38,22 @@ const SignScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   const handleSignUp = async () => {
+    setLoading(true);
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      const userData = {
+        uid: user.uid,
+        email: user.email,
+      };
+
+      await setDoc(doc(db, "users", user.uid), userData);
+
       Alert.alert("회원가입 성공!");
       navigation.navigate("Home");
     } catch (error: any) {

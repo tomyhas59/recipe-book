@@ -26,8 +26,8 @@ import { userState } from "./recoil/userState";
 
 import { Recipe } from "./data/recipes";
 import { darkTheme } from "./styles/theme";
-import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "./firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { auth } from "./firebaseConfig";
 
 export type RootStackParamList = {
   Main: undefined;
@@ -41,6 +41,12 @@ const TabNavigator = () => {
   const [theme, setTheme] = useRecoilState(themeState);
   const themeColors = useRecoilValue(selectedTheme);
   const [isUser, setIsUser] = useRecoilState(userState);
+
+  const handleLogOut = () => {
+    signOut(auth)
+      .then(() => setIsUser(null))
+      .catch((error) => console.error("로그아웃 실패:", error));
+  };
 
   return (
     <Tab.Navigator
@@ -146,7 +152,7 @@ const TabNavigator = () => {
             headerShown: false,
             tabBarButton: () => (
               <TouchableOpacity
-                onPress={() => setIsUser(null)}
+                onPress={handleLogOut}
                 style={{
                   flex: 1,
                   justifyContent: "center",
@@ -182,9 +188,17 @@ const AppNavigator = () => {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);
+      if (user) {
+        //새로운 객체로 전달
+        setUser({
+          uid: user.uid,
+          email: user.email,
+        });
+      } else {
+        setUser(null);
+      }
     });
-    return unsubscribe;
+    return () => unsubscribe();
   }, []);
 
   return (
@@ -206,6 +220,16 @@ const AppNavigator = () => {
 };
 
 const App = () => {
+  // TypeScript에서 setImmediate 폴리필을 안전하게 추가
+  if (typeof globalThis.setImmediate === "undefined") {
+    (globalThis as any).setImmediate = (
+      fn: (...args: any[]) => void,
+      ...args: any[]
+    ) => {
+      return setTimeout(fn, 0, ...args);
+    };
+  }
+
   return (
     <RecoilRoot>
       <AppNavigator />
