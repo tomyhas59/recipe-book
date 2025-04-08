@@ -72,7 +72,6 @@ const SignScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <Container style={{ backgroundColor: themeColors.background }}>
-      <LoadingOverlay />
       <Card style={{ backgroundColor: themeColors.card }}>
         <TabSelector style={{ backgroundColor: themeColors.background }}>
           <TabButton

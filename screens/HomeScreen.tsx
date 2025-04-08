@@ -1,11 +1,12 @@
-import React, { useMemo, useState } from "react";
-import { ScrollView, Text } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { ScrollView } from "react-native";
 import Swiper from "react-native-swiper";
 import styled from "styled-components/native";
-import { Recipe, recipes } from "../data/recipes";
-import { useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
 import { userState } from "../recoil/userState";
+import { BASE_URL, getRecipes, Recipe } from "../services/recipes";
+import { recipesState } from "../recoil/recipesState";
 
 type Props = {
   navigation: any;
@@ -16,14 +17,24 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredRecipes, setFilteredRecipes] = useState<Recipe[] | null>(null);
 
+  const [recipes, setRecipes] = useRecoilState(recipesState);
   const user = useRecoilValue(userState);
 
   const initialRecommendRecipes = useMemo(
-    () => [...recipes].sort(() => Math.random() - 0.5).slice(0, 5),
+    () => [...recipes].sort(() => Math.random() - 0.5).slice(0, 2),
     []
   );
 
   const [recommendRecipes] = useState(initialRecommendRecipes);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getRecipes();
+      setRecipes(data);
+    };
+
+    fetchData();
+  }, []);
 
   const handleSearch = () => {
     if (searchQuery.trim() === "") {
@@ -50,7 +61,11 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
       }}
       key={item.id}
     >
-      <RecipeImage source={item.image} />
+      <RecipeImage
+        source={{
+          uri: `${BASE_URL}${item.image}`,
+        }}
+      />
       <CardContent>
         <RecipeName style={{ color: themeColors.text }}>{item.name}</RecipeName>
         <Description style={{ color: themeColors.text }} numberOfLines={2}>
@@ -78,7 +93,12 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
             >
               {recommendRecipes.map((item) => (
                 <Slide key={item.id}>
-                  <SlideImage source={item.image} resizeMode="cover" />
+                  <SlideImage
+                    source={{
+                      uri: `${BASE_URL}${item.image}`,
+                    }}
+                    resizeMode="cover"
+                  />
                 </Slide>
               ))}
             </Swiper>

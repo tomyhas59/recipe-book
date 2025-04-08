@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import { FlatList, TouchableOpacity } from "react-native";
-import styled from "styled-components/native";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
 import { favoritesState } from "../recoil/favoritesState";
 import { userState } from "../recoil/userState";
@@ -9,6 +8,9 @@ import {
   getFavorites,
   removeFavoriteFromFirestore,
 } from "../services/favorites";
+import { BASE_URL } from "../services/recipes";
+import styled from "styled-components/native";
+import { loadingState } from "../recoil/loadingState";
 
 type Props = {
   navigation: any;
@@ -19,6 +21,7 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useRecoilValue(selectedTheme);
   const isLoggedIn = useRecoilValue(userState);
   const user = useRecoilValue(userState);
+  const setLoading = useSetRecoilState(loadingState);
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -27,10 +30,11 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
       setFavorites(result);
     };
     fetchFavorites();
-  }, [user, setFavorites]);
+  }, []);
 
   const removeFavorite = useCallback(
     async (recipeId: string) => {
+      setLoading(true);
       if (!user?.uid) return;
 
       try {
@@ -43,6 +47,8 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
         );
       } catch (error) {
         console.error("즐겨찾기 삭제 실패:", error);
+      } finally {
+        setLoading(false);
       }
     },
     [user, setFavorites]
@@ -75,12 +81,12 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
                   navigation.navigate("RecipeDetail", { recipe: item })
                 }
               >
-                {/*      <ImageWrapper>
-                  <RecipeImage source={item.image} />
+                <ImageWrapper>
+                  <RecipeImage source={{ uri: `${BASE_URL}${item.image}` }} />
                   <Overlay>
                     <OverlayText>보기</OverlayText>
                   </Overlay>
-                </ImageWrapper> */}
+                </ImageWrapper>
               </TouchableOpacity>
               <RecipeInfo>
                 <RecipeName style={{ color: theme.text }}>
@@ -95,7 +101,7 @@ const FavoritesScreen: React.FC<Props> = ({ navigation }) => {
               </RecipeInfo>
               <RemoveButton
                 style={{ backgroundColor: theme.primary }}
-                onPress={() => removeFavorite(item.id)}
+                onPress={() => removeFavorite(item.recipeId)}
               >
                 <RemoveButtonText>X</RemoveButtonText>
               </RemoveButton>

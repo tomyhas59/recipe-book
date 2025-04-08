@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, View, Text } from "react-native";
 import styled from "styled-components/native";
-import { useRecoilState, useRecoilValue } from "recoil";
+import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
 import { StackScreenProps } from "@react-navigation/stack";
-import { RootStackParamList } from "../App";
 import { favoritesState } from "../recoil/favoritesState";
 import { userState } from "../recoil/userState";
-import { Favorite } from "../data/user";
+
 import {
   addToFavorites,
   removeFavoriteFromFirestore,
-  getFavorites,
+  checkFavorite,
 } from "../services/favorites";
+import { RootStackParamList } from "../navigation/AppNavigator";
+import { BASE_URL } from "../services/recipes";
+import { loadingState } from "../recoil/loadingState";
 
 type Props = StackScreenProps<RootStackParamList, "RecipeDetail">;
 
@@ -21,55 +23,43 @@ const DetailRecipeScreen: React.FC<Props> = ({ route }) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const themeColors = useRecoilValue(selectedTheme);
   const user = useRecoilValue(userState);
+  const setLoading = useSetRecoilState(loadingState);
 
   const [favorites, setFavorites] = useRecoilState(favoritesState);
+  const [notice, setNotice] = useState(false);
 
   useEffect(() => {
-    const checkFavorite = async () => {
-      if (user) {
-        try {
-          // Firestore에서 즐겨찾기 목록을 가져옵니다.
-          const userFavorites = await getFavorites(user.uid);
-          setFavorites(userFavorites);
-          setIsFavorite(
-            userFavorites.some((fav: Favorite) => fav.recipeId === recipe.id)
-          );
-        } catch (error) {
-          console.error("즐겨찾기 확인 오류:", error);
-        }
+    const fetchFavorite = async () => {
+      if (user && recipe?.id) {
+        const result = await checkFavorite(user.uid, recipe.id);
+        setIsFavorite(result);
       }
     };
-    checkFavorite();
-  }, [recipe, user]);
+
+    fetchFavorite();
+  }, []);
 
   const toggleFavorite = async () => {
-    if (!user) return;
+    setLoading(true);
+    if (!user) return setNotice(true);
 
     try {
       let updatedFavorites = [...favorites];
 
       if (isFavorite) {
-        const favoriteToRemove = favorites.find(
-          (fav) => fav.recipeId === recipe.id
+        await removeFavoriteFromFirestore(user.uid, recipe.id);
+        updatedFavorites = updatedFavorites.filter(
+          (fav) => fav.recipeId !== recipe.id
         );
-
-        if (favoriteToRemove?.id) {
-          await removeFavoriteFromFirestore(user.uid, favoriteToRemove.id);
-          updatedFavorites = updatedFavorites.filter(
-            (fav) => fav.recipeId !== recipe.id
-          );
-        }
       } else {
         await addToFavorites(recipe, user.uid);
 
         updatedFavorites = [
           ...updatedFavorites,
           {
-            id: "",
             userId: user.uid,
+            ...recipe,
             recipeId: recipe.id,
-            name: recipe.name,
-            description: recipe.description,
           },
         ];
       }
@@ -78,13 +68,19 @@ const DetailRecipeScreen: React.FC<Props> = ({ route }) => {
       setIsFavorite(!isFavorite);
     } catch (error) {
       console.error("즐겨찾기 저장 오류:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <ScrollView style={{ backgroundColor: themeColors.background }}>
       <Container>
-        <RecipeImage source={recipe.image} />
+        <RecipeImage
+          source={{
+            uri: `${BASE_URL}${recipe.image}`,
+          }}
+        />
         <Title style={{ color: themeColors.text }}>{recipe.name}</Title>
         <Category style={{ color: themeColors.text }}>
           {recipe.category}
@@ -99,11 +95,13 @@ const DetailRecipeScreen: React.FC<Props> = ({ route }) => {
           </SectionTitle>
         </SectionContainer>
         <View>
-          {recipe.ingredients.map((item, index) => (
-            <IngredientItem key={index} style={{ color: themeColors.text }}>
-              - {item.name} ({item.amount})
-            </IngredientItem>
-          ))}
+          {Object.values(recipe.ingredients ?? {}).map?.(
+            (item: { name: string; amount: string }, index: number) => (
+              <IngredientItem key={index} style={{ color: themeColors.text }}>
+                - {item.name} ({item.amount})
+              </IngredientItem>
+            )
+          )}
         </View>
 
         <SectionContainer style={{ borderBottomColor: themeColors.border }}>
@@ -112,20 +110,23 @@ const DetailRecipeScreen: React.FC<Props> = ({ route }) => {
           </SectionTitle>
         </SectionContainer>
         <View>
-          {recipe.instructions.map((item, index) => (
+          {recipe.instructions?.map?.((item: string, index: number) => (
             <StepItem key={index} style={{ color: themeColors.text }}>
               {index + 1}. {item}
             </StepItem>
           ))}
         </View>
-
         <FavoriteButton
           onPress={toggleFavorite}
           style={{ backgroundColor: themeColors.button }}
         >
-          <FavoriteButtonText style={{ color: themeColors.buttonText }}>
-            {isFavorite ? "⭐ 즐겨찾기 해제" : "☆ 즐겨찾기 추가"}
-          </FavoriteButtonText>
+          {notice ? (
+            <Notice>로그인 해주세요</Notice>
+          ) : (
+            <FavoriteButtonText style={{ color: themeColors.buttonText }}>
+              {isFavorite ? "⭐ 즐겨찾기 해제" : "☆ 즐겨찾기 추가"}
+            </FavoriteButtonText>
+          )}
         </FavoriteButton>
       </Container>
     </ScrollView>
@@ -189,6 +190,11 @@ const StepItem = styled.Text`
   line-height: 22px;
 `;
 
+const Notice = styled.Text`
+  color: #fff;
+  font-size: 18px;
+  font-weight: bold;
+`;
 const FavoriteButton = styled.TouchableOpacity`
   padding: 14px 20px;
   border-radius: 10px;

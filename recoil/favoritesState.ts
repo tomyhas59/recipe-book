@@ -1,6 +1,5 @@
 import { atom } from "recoil";
-
-import { Favorite } from "../data/user";
+import { Favorite } from "../services/favorites";
 
 export const favoritesState = atom<Favorite[]>({
   key: "favoritesState",

@@ -1,22 +1,23 @@
 import React, { useState } from "react";
 import { FlatList, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
-import { recipes } from "../data/recipes";
 import { useRecoilValue } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
+import { recipesState } from "../recoil/recipesState";
+import { BASE_URL } from "../services/recipes";
 
 type Props = {
   navigation: any;
 };
 
-const categories = Array.from(
-  new Set(recipes.map((recipe) => recipe.category))
-);
-
 const CategoryScreen: React.FC<Props> = ({ navigation }) => {
   const themeColors = useRecoilValue(selectedTheme);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(
     "한식"
+  );
+  const recipes = useRecoilValue(recipesState);
+  const categories = Array.from(
+    new Set(recipes.map((recipe) => recipe.category))
   );
 
   // ✅ 선택한 카테고리의 레시피 필터링
@@ -82,7 +83,7 @@ const CategoryScreen: React.FC<Props> = ({ navigation }) => {
                     borderColor: themeColors.border,
                   }}
                 >
-                  <RecipeImage source={item.image} />
+                  <RecipeImage source={{ uri: `${BASE_URL}${item.image}` }} />
                   <RecipeInfo>
                     <RecipeName style={{ color: themeColors.text }}>
                       {item.name}

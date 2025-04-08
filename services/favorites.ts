@@ -7,8 +7,18 @@ import {
   deleteDoc,
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
-import { Recipe } from "../data/recipes";
-import { Favorite } from "../data/user";
+import { Ingredient, Recipe } from "./recipes";
+
+export interface Favorite {
+  id: string;
+  userId: string;
+  recipeId: string;
+  name: string;
+  description: string;
+  image: string;
+  ingredients: Ingredient[];
+  instructions: string[];
+}
 
 export const addToFavorites = async (recipe: Recipe, userId: string) => {
   if (!userId) {
@@ -22,6 +32,9 @@ export const addToFavorites = async (recipe: Recipe, userId: string) => {
       recipeId: recipe.id,
       name: recipe.name,
       description: recipe.description,
+      image: recipe.image,
+      ingredients: recipe.ingredients,
+      instructions: recipe.instructions,
     });
   } catch (error) {
     console.error("즐겨찾기 추가 실패:", error);
@@ -58,5 +71,23 @@ export const getFavorites = async (userId: string): Promise<Favorite[]> => {
   } catch (error) {
     console.error("Firestore에서 즐겨찾기 불러오기 실패:", error);
     return [];
+  }
+};
+
+export const checkFavorite = async (
+  userId: string,
+  recipeId: string
+): Promise<boolean> => {
+  try {
+    const q = query(
+      collection(db, "favorites"),
+      where("userId", "==", userId),
+      where("recipeId", "==", recipeId)
+    );
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
+  } catch (error) {
+    console.error("즐겨찾기 확인 오류:", error);
+    return false;
   }
 };
