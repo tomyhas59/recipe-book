@@ -1,11 +1,8 @@
-import React from "react";
-import { Switch } from "react-native";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { themeState, selectedTheme } from "../recoil/themeState";
 import styled from "styled-components/native";
 
 const SettingsScreen: React.FC = () => {
-  const [theme, setTheme] = useRecoilState(themeState);
   const themeColors = useRecoilValue(selectedTheme);
 
   return (

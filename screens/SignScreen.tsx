@@ -1,16 +1,13 @@
 import React, { useState } from "react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import styled from "styled-components/native";
-
 import { selectedTheme } from "../recoil/themeState";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  updateProfile,
 } from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
 import { Alert } from "react-native";
-import LoadingOverlay from "../components/LoadingOverlay";
 import { loadingState } from "../recoil/loadingState";
 import { doc, setDoc } from "firebase/firestore";
 

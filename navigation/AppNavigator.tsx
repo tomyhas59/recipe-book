@@ -10,10 +10,12 @@ import { auth } from "../firebaseConfig";
 import { onAuthStateChanged } from "firebase/auth";
 import { Recipe } from "../services/recipes";
 import LoadingOverlay from "../components/LoadingOverlay";
+import RecipeCreateScreen from "../screens/RecipeCreateScreen";
 
 export type RootStackParamList = {
   Main: undefined;
   RecipeDetail: { recipe: Recipe };
+  RecipeCreate: undefined; // ✅ 이거 추가
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -49,6 +51,11 @@ const AppNavigator = () => {
           name="RecipeDetail"
           component={RecipeDetailScreen}
           options={{ title: "레시피" }}
+        />
+        <Stack.Screen
+          name="RecipeCreate"
+          component={RecipeCreateScreen}
+          options={{ title: "레시피 등록" }} // ✅ 이거 추가
         />
       </Stack.Navigator>
     </NavigationContainer>
