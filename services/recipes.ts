@@ -1,4 +1,4 @@
-import { collection, getDocs } from "firebase/firestore";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 
 export interface Ingredient {
@@ -15,6 +15,16 @@ export interface Recipe {
   category: string;
   image: string;
 }
+
+export const addRecipe = async (recipe: Omit<Recipe, "id">) => {
+  try {
+    const docRef = await addDoc(collection(db, "recipes"), recipe);
+    return docRef.id;
+  } catch (e) {
+    console.error("Error adding recipe: ", e);
+    throw e;
+  }
+};
 
 export const getRecipes = async (): Promise<Recipe[]> => {
   const querySnapshot = await getDocs(collection(db, "recipes"));

@@ -1,5 +1,3 @@
-/* // src/data/recipes.ts
-
 import { ImageSourcePropType } from "react-native";
 
 export interface Ingredient {
@@ -257,4 +255,3 @@ export const recipes: Recipe[] = [
     image: require("../assets/udong.png"),
   },
 ];
- */

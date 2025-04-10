@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { ScrollView, View, Text } from "react-native";
+import { ScrollView, View, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import { useRecoilState, useRecoilValue, useSetRecoilState } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
@@ -18,7 +18,7 @@ import { loadingState } from "../recoil/loadingState";
 
 type Props = StackScreenProps<RootStackParamList, "RecipeDetail">;
 
-const DetailRecipeScreen: React.FC<Props> = ({ route }) => {
+const DetailRecipeScreen: React.FC<Props> = ({ route, navigation }) => {
   const { recipe } = route.params;
   const [isFavorite, setIsFavorite] = useState(false);
   const themeColors = useRecoilValue(selectedTheme);
@@ -41,7 +41,11 @@ const DetailRecipeScreen: React.FC<Props> = ({ route }) => {
 
   const toggleFavorite = async () => {
     setLoading(true);
-    if (!user) return setNotice(true);
+    if (!user) {
+      setNotice(true);
+      setLoading(false);
+      return;
+    }
 
     try {
       let updatedFavorites = [...favorites];
@@ -121,7 +125,11 @@ const DetailRecipeScreen: React.FC<Props> = ({ route }) => {
           style={{ backgroundColor: themeColors.button }}
         >
           {notice ? (
-            <Notice>로그인 해주세요</Notice>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Main", { screen: "Sign" })}
+            >
+              <Notice>로그인하러 가기</Notice>
+            </TouchableOpacity>
           ) : (
             <FavoriteButtonText style={{ color: themeColors.buttonText }}>
               {isFavorite ? "⭐ 즐겨찾기 해제" : "☆ 즐겨찾기 추가"}
