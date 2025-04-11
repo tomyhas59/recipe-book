@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   TextInput,
@@ -7,14 +7,15 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  Platform,
+  Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import * as FileSystem from "expo-file-system";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
 import { addRecipe } from "../services/recipes";
 import { supabase } from "../supabaseClient";
+import { loadingState } from "../recoil/loadingState";
 
 type Props = {
   navigation: any;
@@ -30,6 +31,18 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
   const [instructions, setInstructions] = useState([""]);
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [imageFileName, setImageFileName] = useState<string | null>(null);
+  const [imageData, setImageData] = useState<string | null | undefined>(null);
+  const setLoading = useSetRecoilState(loadingState);
+
+  useEffect(() => {
+    (async () => {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        alert("사진 접근 권한이 필요합니다!");
+      }
+    })();
+  }, []);
 
   const handleAddIngredient = () => {
     setIngredients([...ingredients, { name: "", amount: "" }]);
@@ -55,21 +68,73 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
     setInstructions(updated);
   };
 
+  const base64ToUint8Array = (base64: string) => {
+    const binaryString = atob(base64);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
+  };
+
+  const uploadImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+      base64: true, // ✅ 여기 중요!
+    });
+
+    if (result.canceled || !result.assets?.length) return;
+
+    const image = result.assets[0];
+    const imageUri = image.uri;
+    const fileName = image.uri.split("/").pop() || `img-${Date.now()}.jpg`;
+
+    setImageUri(imageUri);
+    setImageFileName(fileName);
+    setImageData(image.base64);
+  };
+
   const handleSubmit = async () => {
+    if (!imageData) {
+      console.error("❌ base64 데이터 없음");
+      return;
+    }
+    setLoading(true);
     try {
+      const fileData = base64ToUint8Array(imageData);
+
+      const { data, error } = await supabase.storage
+        .from("recipe-book-image")
+        .upload(`recipe-image/${imageFileName}`, fileData, {
+          contentType: "image/jpeg",
+          upsert: true,
+        });
+
+      if (error) {
+        console.error("❌ 업로드 실패:", error);
+      } else {
+        console.log("✅ 업로드 성공:", data);
+      }
+
       const newRecipe = {
         name,
         description,
         category,
         ingredients,
         instructions,
-        image: "",
+        image: imageFileName,
       };
 
-      await addRecipe(newRecipe); // DB 저장
-      navigation.goBack(); // 등록 후 이전 화면으로
+      await addRecipe(newRecipe);
+      Alert.alert("등록 완료");
+      navigation.navigate("Main", { screen: "Home" });
     } catch (error) {
       console.error("레시피 등록 실패:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -132,7 +197,7 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
         />
       )}
 
-      <TouchableOpacity onPress={() => null}>
+      <TouchableOpacity onPress={uploadImage}>
         <Text style={{ color: theme.primary, marginBottom: 16 }}>
           ＋ 이미지 선택
         </Text>

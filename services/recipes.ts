@@ -13,7 +13,7 @@ export interface Recipe {
   ingredients: Ingredient[];
   instructions: string[];
   category: string;
-  image: string;
+  image: string | null;
 }
 
 export const addRecipe = async (recipe: Omit<Recipe, "id">) => {

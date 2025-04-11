@@ -17,7 +17,7 @@ const CategoryScreen: React.FC<Props> = ({ navigation }) => {
   );
   const recipes = useRecoilValue(recipesState);
   const categories = Array.from(
-    new Set(recipes.map((recipe) => recipe.category))
+    new Set(["한식", "중식", "양식", "일식"].map((recipe) => recipe))
   );
 
   // ✅ 선택한 카테고리의 레시피 필터링

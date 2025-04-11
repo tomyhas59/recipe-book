@@ -15,7 +15,7 @@ export interface Favorite {
   recipeId: string;
   name: string;
   description: string;
-  image: string;
+  image: string | null;
   ingredients: Ingredient[];
   instructions: string[];
 }
