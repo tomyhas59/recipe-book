@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   TextInput,
@@ -10,12 +10,12 @@ import {
   Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
 import { addRecipe } from "../services/recipes";
 import { supabase } from "../supabaseClient";
 import { loadingState } from "../recoil/loadingState";
+import { base64ToUint8Array } from "../utils/base64ToUint8Array";
 
 type Props = {
   navigation: any;
@@ -33,6 +33,8 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
   const [imageFileName, setImageFileName] = useState<string | null>(null);
   const [imageData, setImageData] = useState<string | null | undefined>(null);
   const setLoading = useSetRecoilState(loadingState);
+  const ingredientsRefs = useRef<(TextInput | null)[]>([]);
+  const instructionsRefs = useRef<(TextInput | null)[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -66,16 +68,6 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
     const updated = [...instructions];
     updated[index] = value;
     setInstructions(updated);
-  };
-
-  const base64ToUint8Array = (base64: string) => {
-    const binaryString = atob(base64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes;
   };
 
   const uploadImage = async () => {
@@ -209,6 +201,7 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
       {ingredients.map((item, index) => (
         <View key={index} style={{ flexDirection: "row", marginBottom: 8 }}>
           <TextInput
+            ref={(ref) => (ingredientsRefs.current[index] = ref)}
             placeholder="재료 이름"
             placeholderTextColor={theme.placeholder}
             value={item.name}
@@ -216,6 +209,11 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
             onSubmitEditing={() => {
               if (index === ingredients.length - 1) {
                 handleAddIngredient();
+                setTimeout(() => {
+                  ingredientsRefs.current[index + 1]?.focus();
+                }, 100);
+              } else {
+                ingredientsRefs.current[index + 1]?.focus();
               }
             }}
             style={{
@@ -236,6 +234,11 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
             onSubmitEditing={() => {
               if (index === ingredients.length - 1) {
                 handleAddIngredient();
+                setTimeout(() => {
+                  ingredientsRefs.current[index + 1]?.focus();
+                }, 100);
+              } else {
+                ingredientsRefs.current[index + 1]?.focus();
               }
             }}
             style={{
@@ -259,14 +262,19 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
       {instructions.map((step, index) => (
         <TextInput
           key={index}
+          ref={(ref) => (instructionsRefs.current[index] = ref)}
           placeholder={`단계 ${index + 1}`}
           placeholderTextColor={theme.placeholder}
           value={step}
           onChangeText={(text) => handleInstructionChange(index, text)}
           onSubmitEditing={() => {
-            // 마지막 재료일 때만 새 항목 추가
-            if (index === ingredients.length - 1) {
+            if (index === instructions.length - 1) {
               handleAddInstruction();
+              setTimeout(() => {
+                instructionsRefs.current[index + 1]?.focus();
+              }, 100);
+            } else {
+              instructionsRefs.current[index + 1]?.focus();
             }
           }}
           style={{
