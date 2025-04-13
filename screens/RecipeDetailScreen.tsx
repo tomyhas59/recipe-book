@@ -140,23 +140,24 @@ const DetailRecipeScreen: React.FC<Props> = ({ route, navigation }) => {
     </ScrollView>
   );
 };
-
 const Container = styled.View`
   flex: 1;
-  padding: 5px;
-  padding-top: 50px;
+  padding: 20px;
+  padding-top: 60px;
+  background-color: #f9f9f9;
 `;
 
 const RecipeImage = styled.Image`
   width: 100%;
   height: 260px;
-  border-radius: 15px;
-  margin-bottom: 20px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
 const Title = styled.Text`
-  font-size: 30px;
-  font-weight: bold;
+  font-size: 32px;
+  font-weight: 700;
   text-align: center;
   margin-bottom: 10px;
 `;
@@ -164,55 +165,65 @@ const Title = styled.Text`
 const Category = styled.Text`
   font-size: 18px;
   text-align: center;
-  margin-bottom: 15px;
+  color: #888;
+  margin-bottom: 20px;
 `;
 
 const Description = styled.Text`
   font-size: 16px;
   text-align: center;
-  margin-bottom: 25px;
+  color: #555;
+  margin-bottom: 30px;
+  line-height: 24px;
 `;
 
 const SectionContainer = styled.View`
-  margin-top: 20px;
-  padding-bottom: 8px;
-  border-bottom-width: 1px;
+  margin-top: 24px;
+  padding-bottom: 12px;
+  border-bottom-width: 1.5px;
+  border-bottom-color: #ddd;
 `;
 
 const SectionTitle = styled.Text`
-  font-size: 22px;
-  font-weight: bold;
-  text-align: left;
+  font-size: 24px;
+  font-weight: 600;
   margin-bottom: 10px;
 `;
 
 const IngredientItem = styled.Text`
   font-size: 16px;
-  margin-left: 12px;
+  margin-left: 16px;
+  margin-bottom: 6px;
+  color: #444;
 `;
 
 const StepItem = styled.Text`
   font-size: 16px;
-  margin-left: 12px;
-  margin-bottom: 8px;
-  line-height: 22px;
+  margin-left: 16px;
+  margin-bottom: 12px;
+  color: #444;
+  line-height: 24px;
+`;
+
+const FavoriteButton = styled.TouchableOpacity`
+  padding: 16px 24px;
+  border-radius: 14px;
+  align-items: center;
+  margin-top: 40px;
+  background-color: #ff7f50;
+`;
+
+const FavoriteButtonText = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
 `;
 
 const Notice = styled.Text`
   color: #fff;
   font-size: 18px;
   font-weight: bold;
-`;
-const FavoriteButton = styled.TouchableOpacity`
-  padding: 14px 20px;
-  border-radius: 10px;
-  align-items: center;
-  margin-top: 30px;
-`;
-
-const FavoriteButtonText = styled.Text`
-  font-size: 18px;
-  font-weight: bold;
+  text-decoration: underline;
 `;
 
 export default DetailRecipeScreen;

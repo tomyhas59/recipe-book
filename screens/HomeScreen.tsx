@@ -158,11 +158,13 @@ const Header = styled.View`
 
 const UserName = styled.Text`
   position: absolute;
-  left: 20%;
-  background-color: #fff;
-  color: #000;
-  padding: 8px;
-  border-radius: 10px;
+  top: 20px;
+  left: 20px;
+  flex-direction: row;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 8px 12px;
+  border-radius: 20px;
 `;
 const HeaderText = styled.Text`
   font-size: 24px;

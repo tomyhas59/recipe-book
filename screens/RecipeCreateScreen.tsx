@@ -23,10 +23,9 @@ type Props = {
 
 const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useRecoilValue(selectedTheme);
-
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null); // 단일 카테고리 선택
   const [ingredients, setIngredients] = useState([{ name: "", amount: "" }]);
   const [instructions, setInstructions] = useState([""]);
   const [imageUri, setImageUri] = useState<string | null>(null);
@@ -35,6 +34,8 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
   const setLoading = useSetRecoilState(loadingState);
   const ingredientsRefs = useRef<(TextInput | null)[]>([]);
   const instructionsRefs = useRef<(TextInput | null)[]>([]);
+
+  const categories = ["한식", "중식", "일식", "양식"];
 
   useEffect(() => {
     (async () => {
@@ -45,6 +46,10 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
       }
     })();
   }, []);
+
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(category); // 카테고리 변경 시 이전 선택을 덮어쓰도록 설정
+  };
 
   const handleAddIngredient = () => {
     setIngredients([...ingredients, { name: "", amount: "" }]);
@@ -75,7 +80,7 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
-      base64: true, // ✅ 여기 중요!
+      base64: true,
     });
 
     if (result.canceled || !result.assets?.length) return;
@@ -94,6 +99,12 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
       console.error("❌ base64 데이터 없음");
       return;
     }
+
+    if (!selectedCategory) {
+      Alert.alert("카테고리를 선택해주세요.");
+      return;
+    }
+
     setLoading(true);
     try {
       const fileData = base64ToUint8Array(imageData);
@@ -114,7 +125,7 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
       const newRecipe = {
         name,
         description,
-        category,
+        category: selectedCategory, // 선택된 카테고리
         ingredients,
         instructions,
         image: imageFileName,
@@ -163,18 +174,34 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
         }}
       />
 
-      <TextInput
-        placeholder="카테고리 (예: 한식, 중식)"
-        placeholderTextColor={theme.placeholder}
-        value={category}
-        onChangeText={setCategory}
-        style={{
-          marginBottom: 12,
-          borderBottomWidth: 1,
-          borderColor: theme.border,
-          color: theme.text,
-        }}
-      />
+      <Text style={{ marginBottom: 8, color: theme.text, fontWeight: "bold" }}>
+        카테고리 선택
+      </Text>
+      <View
+        style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 12 }}
+      >
+        {categories.map((cat) => (
+          <TouchableOpacity
+            key={cat}
+            onPress={() => handleCategorySelect(cat)}
+            style={{
+              padding: 8,
+              margin: 4,
+              borderRadius: 16,
+              borderWidth: 1,
+              borderColor: theme.border,
+              backgroundColor:
+                selectedCategory === cat ? theme.primary : "transparent",
+            }}
+          >
+            <Text
+              style={{ color: selectedCategory === cat ? "#fff" : theme.text }}
+            >
+              {cat}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
 
       {imageUri && (
         <Image
