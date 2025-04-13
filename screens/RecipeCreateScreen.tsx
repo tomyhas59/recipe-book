@@ -1,13 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
-  View,
   TextInput,
   Button,
   Text,
-  ScrollView,
   TouchableOpacity,
-  Image,
   Alert,
+  View,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useRecoilValue, useSetRecoilState } from "recoil";
@@ -16,6 +14,7 @@ import { addRecipe } from "../services/recipes";
 import { supabase } from "../supabaseClient";
 import { loadingState } from "../recoil/loadingState";
 import { base64ToUint8Array } from "../utils/base64ToUint8Array";
+import styled from "styled-components/native";
 
 type Props = {
   navigation: any;
@@ -25,7 +24,7 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
   const theme = useRecoilValue(selectedTheme);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null); // 단일 카테고리 선택
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [ingredients, setIngredients] = useState([{ name: "", amount: "" }]);
   const [instructions, setInstructions] = useState([""]);
   const [imageUri, setImageUri] = useState<string | null>(null);
@@ -37,18 +36,8 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
 
   const categories = ["한식", "중식", "일식", "양식"];
 
-  useEffect(() => {
-    (async () => {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== "granted") {
-        alert("사진 접근 권한이 필요합니다!");
-      }
-    })();
-  }, []);
-
   const handleCategorySelect = (category: string) => {
-    setSelectedCategory(category); // 카테고리 변경 시 이전 선택을 덮어쓰도록 설정
+    setSelectedCategory(category);
   };
 
   const handleAddIngredient = () => {
@@ -142,189 +131,257 @@ const RecipeCreateScreen: React.FC<Props> = ({ navigation }) => {
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={{ padding: 16, backgroundColor: theme.background }}
-    >
-      <TextInput
-        placeholder="레시피 이름"
-        placeholderTextColor={theme.placeholder}
-        value={name}
-        onChangeText={setName}
-        style={{
-          marginBottom: 12,
-          borderBottomWidth: 1,
-          borderColor: theme.border,
-          color: theme.text,
-        }}
-      />
-
-      <TextInput
-        placeholder="설명"
-        placeholderTextColor={theme.placeholder}
-        value={description}
-        onChangeText={setDescription}
-        multiline
-        style={{
-          height: 100,
-          marginBottom: 12,
-          borderWidth: 1,
-          borderColor: theme.border,
-          color: theme.text,
-          padding: 8,
-        }}
-      />
-
-      <Text style={{ marginBottom: 8, color: theme.text, fontWeight: "bold" }}>
-        카테고리 선택
-      </Text>
-      <View
-        style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 12 }}
+    <Container style={{ flex: 1, backgroundColor: theme.background }}>
+      <FormContainer
+        contentContainerStyle={{ backgroundColor: theme.background }}
       >
-        {categories.map((cat) => (
-          <TouchableOpacity
-            key={cat}
-            onPress={() => handleCategorySelect(cat)}
-            style={{
-              padding: 8,
-              margin: 4,
-              borderRadius: 16,
-              borderWidth: 1,
-              borderColor: theme.border,
-              backgroundColor:
-                selectedCategory === cat ? theme.primary : "transparent",
-            }}
-          >
-            <Text
-              style={{ color: selectedCategory === cat ? "#fff" : theme.text }}
-            >
-              {cat}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-
-      {imageUri && (
-        <Image
-          source={{ uri: imageUri }}
-          style={{
-            width: "100%",
-            height: 200,
-            borderRadius: 8,
-            marginBottom: 12,
-          }}
-          resizeMode="cover"
-        />
-      )}
-
-      <TouchableOpacity onPress={uploadImage}>
-        <Text style={{ color: theme.primary, marginBottom: 16 }}>
-          ＋ 이미지 선택
-        </Text>
-      </TouchableOpacity>
-
-      <Text style={{ marginBottom: 8, color: theme.text, fontWeight: "bold" }}>
-        재료
-      </Text>
-      {ingredients.map((item, index) => (
-        <View key={index} style={{ flexDirection: "row", marginBottom: 8 }}>
-          <TextInput
-            ref={(ref) => (ingredientsRefs.current[index] = ref)}
-            placeholder="재료 이름"
-            placeholderTextColor={theme.placeholder}
-            value={item.name}
-            onChangeText={(text) => handleIngredientChange(index, "name", text)}
-            onSubmitEditing={() => {
-              if (index === ingredients.length - 1) {
-                handleAddIngredient();
-                setTimeout(() => {
-                  ingredientsRefs.current[index + 1]?.focus();
-                }, 100);
-              } else {
-                ingredientsRefs.current[index + 1]?.focus();
-              }
-            }}
-            style={{
-              flex: 1,
-              marginRight: 8,
-              borderBottomWidth: 1,
-              borderColor: theme.border,
-              color: theme.text,
-            }}
-          />
-          <TextInput
-            placeholder="양"
-            placeholderTextColor={theme.placeholder}
-            value={item.amount}
-            onChangeText={(text) =>
-              handleIngredientChange(index, "amount", text)
-            }
-            onSubmitEditing={() => {
-              if (index === ingredients.length - 1) {
-                handleAddIngredient();
-                setTimeout(() => {
-                  ingredientsRefs.current[index + 1]?.focus();
-                }, 100);
-              } else {
-                ingredientsRefs.current[index + 1]?.focus();
-              }
-            }}
-            style={{
-              width: 80,
-              borderBottomWidth: 1,
-              borderColor: theme.border,
-              color: theme.text,
-            }}
-          />
-        </View>
-      ))}
-      <TouchableOpacity onPress={handleAddIngredient}>
-        <Text style={{ color: theme.primary, marginBottom: 12 }}>
-          ＋ 재료 추가
-        </Text>
-      </TouchableOpacity>
-
-      <Text style={{ marginBottom: 8, color: theme.text, fontWeight: "bold" }}>
-        조리 순서
-      </Text>
-      {instructions.map((step, index) => (
-        <TextInput
-          key={index}
-          ref={(ref) => (instructionsRefs.current[index] = ref)}
-          placeholder={`단계 ${index + 1}`}
+        <StyledInput
+          placeholder="레시피 이름"
           placeholderTextColor={theme.placeholder}
-          value={step}
-          onChangeText={(text) => handleInstructionChange(index, text)}
-          onSubmitEditing={() => {
-            if (index === instructions.length - 1) {
-              handleAddInstruction();
-              setTimeout(() => {
-                instructionsRefs.current[index + 1]?.focus();
-              }, 100);
-            } else {
-              instructionsRefs.current[index + 1]?.focus();
-            }
-          }}
+          value={name}
+          onChangeText={setName}
           style={{
-            marginBottom: 8,
-            borderBottomWidth: 1,
             borderColor: theme.border,
             color: theme.text,
           }}
         />
-      ))}
-      <TouchableOpacity onPress={handleAddInstruction}>
-        <Text style={{ color: theme.primary, marginBottom: 24 }}>
-          ＋ 조리 단계 추가
-        </Text>
-      </TouchableOpacity>
 
-      <Button
-        title="레시피 등록"
-        onPress={handleSubmit}
-        color={theme.primary}
-      />
-    </ScrollView>
+        <StyledDescriptionInput
+          placeholder="설명"
+          placeholderTextColor={theme.placeholder}
+          value={description}
+          onChangeText={setDescription}
+          multiline
+          style={{
+            borderColor: theme.border,
+            color: theme.text,
+          }}
+        />
+
+        <SectionTitle style={{ color: theme.text }}>카테고리 선택</SectionTitle>
+        <CategoryContainer>
+          {categories.map((category) => (
+            <CategoryButton
+              key={category}
+              onPress={() => handleCategorySelect(category)}
+              style={{
+                borderColor: theme.border,
+                backgroundColor:
+                  selectedCategory === category ? theme.primary : "transparent",
+              }}
+            >
+              <CategoryText
+                style={{
+                  color: selectedCategory === category ? "#fff" : theme.text,
+                }}
+              >
+                {category}
+              </CategoryText>
+            </CategoryButton>
+          ))}
+        </CategoryContainer>
+
+        {imageUri && (
+          <StyledImage source={{ uri: imageUri }} resizeMode="cover" />
+        )}
+
+        <TouchableOpacity onPress={uploadImage}>
+          <UploadText style={{ color: theme.primary }}>
+            ＋ 이미지 선택
+          </UploadText>
+        </TouchableOpacity>
+
+        <Text
+          style={{ marginBottom: 8, color: theme.text, fontWeight: "bold" }}
+        >
+          재료
+        </Text>
+        {ingredients.map((item, index) => (
+          <ItemWrapper key={index}>
+            <ItemInput
+              ref={(ref: TextInput | null) =>
+                (ingredientsRefs.current[index] = ref)
+              }
+              placeholder="재료 이름"
+              placeholderTextColor={theme.placeholder}
+              value={item.name}
+              onChangeText={(text: string) =>
+                handleIngredientChange(index, "name", text)
+              }
+              onSubmitEditing={() => {
+                if (index === ingredients.length - 1) {
+                  handleAddIngredient();
+                  setTimeout(() => {
+                    ingredientsRefs.current[index + 1]?.focus();
+                  }, 100);
+                } else {
+                  ingredientsRefs.current[index + 1]?.focus();
+                }
+              }}
+              style={{
+                borderColor: theme.border,
+                color: theme.text,
+              }}
+            />
+            <AmountInput
+              placeholder="양"
+              placeholderTextColor={theme.placeholder}
+              value={item.amount}
+              onChangeText={(text: string) =>
+                handleIngredientChange(index, "amount", text)
+              }
+              onSubmitEditing={() => {
+                if (index === ingredients.length - 1) {
+                  handleAddIngredient();
+                  setTimeout(() => {
+                    ingredientsRefs.current[index + 1]?.focus();
+                  }, 100);
+                } else {
+                  ingredientsRefs.current[index + 1]?.focus();
+                }
+              }}
+              style={{
+                borderColor: theme.border,
+                color: theme.text,
+              }}
+            />
+          </ItemWrapper>
+        ))}
+        <TouchableOpacity onPress={handleAddIngredient}>
+          <Text style={{ color: theme.primary, marginBottom: 12 }}>
+            ＋ 재료 추가
+          </Text>
+        </TouchableOpacity>
+
+        <Text
+          style={{ marginBottom: 8, color: theme.text, fontWeight: "bold" }}
+        >
+          조리 순서
+        </Text>
+        {instructions.map((step, index) => (
+          <ItemInput
+            key={index}
+            ref={(ref: TextInput | null) =>
+              (instructionsRefs.current[index] = ref)
+            }
+            placeholder={`단계 ${index + 1}`}
+            placeholderTextColor={theme.placeholder}
+            value={step}
+            onChangeText={(text: string) =>
+              handleInstructionChange(index, text)
+            }
+            onSubmitEditing={() => {
+              if (index === instructions.length - 1) {
+                handleAddInstruction();
+                setTimeout(() => {
+                  instructionsRefs.current[index + 1]?.focus();
+                }, 100);
+              } else {
+                instructionsRefs.current[index + 1]?.focus();
+              }
+            }}
+            style={{
+              borderColor: theme.border,
+              color: theme.text,
+            }}
+          />
+        ))}
+        <TouchableOpacity onPress={handleAddInstruction}>
+          <Text style={{ color: theme.primary, marginBottom: 24 }}>
+            ＋ 조리 단계 추가
+          </Text>
+        </TouchableOpacity>
+
+        <Button
+          title="레시피 등록"
+          onPress={handleSubmit}
+          color={theme.primary}
+        />
+      </FormContainer>
+    </Container>
   );
 };
 
 export default RecipeCreateScreen;
+
+const Container = styled.View`
+  flex: 1;
+`;
+
+const FormContainer = styled.ScrollView`
+  padding: 20px;
+`;
+
+const StyledInput = styled.TextInput`
+  border-bottom-width: 1px;
+  font-size: 16px;
+  padding: 8px 0;
+  margin-bottom: 16px;
+`;
+
+const StyledDescriptionInput = styled.TextInput`
+  border-width: 1px;
+  border-radius: 8px;
+  padding: 12px;
+  height: 120px;
+  font-size: 16px;
+  margin-bottom: 20px;
+`;
+
+const SectionTitle = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 12px;
+`;
+
+const CategoryContainer = styled.View`
+  flex-direction: row;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  gap: 8px;
+`;
+
+const CategoryButton = styled.TouchableOpacity`
+  padding: 10px 16px;
+  border-radius: 20px;
+  border-width: 1px;
+`;
+
+const CategoryText = styled.Text`
+  font-size: 14px;
+`;
+
+const StyledImage = styled.Image`
+  width: 100%;
+  height: 220px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+`;
+
+const UploadText = styled.Text`
+  font-size: 16px;
+  text-align: center;
+  margin-bottom: 24px;
+  font-weight: 500;
+`;
+
+const ItemWrapper = styled.View`
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 12px;
+`;
+
+const ItemInput = styled.TextInput`
+  flex: 1;
+  border-bottom-width: 1px;
+  font-size: 16px;
+  padding: 8px 4px;
+`;
+
+const AmountInput = styled.TextInput`
+  width: 80px;
+  border-bottom-width: 1px;
+  font-size: 16px;
+  padding: 8px 4px;
+  margin-left: 8px;
+`;

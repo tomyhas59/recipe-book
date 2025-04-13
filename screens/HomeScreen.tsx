@@ -1,12 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { ScrollView } from "react-native";
-import Swiper from "react-native-swiper";
+import React, { useEffect, useRef, useState } from "react";
+import { Dimensions, ScrollView, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 import { useRecoilState, useRecoilValue } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
 import { userState } from "../recoil/userState";
 import { BASE_URL, getRecipes, Recipe } from "../services/recipes";
 import { recipesState } from "../recoil/recipesState";
+import Carousel from "react-native-reanimated-carousel";
 
 type Props = {
   navigation: any;
@@ -16,21 +16,18 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const themeColors = useRecoilValue(selectedTheme);
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredRecipes, setFilteredRecipes] = useState<Recipe[] | null>(null);
-
   const [recipes, setRecipes] = useRecoilState(recipesState);
+  const [recommendRecipes, setRecommendRecipes] = useState<Recipe[]>([]);
   const user = useRecoilValue(userState);
-
-  const initialRecommendRecipes = useMemo(
-    () => [...recipes].sort(() => Math.random() - 0.5).slice(0, 2),
-    []
-  );
-
-  const [recommendRecipes] = useState(initialRecommendRecipes);
-
+  const carouselRef = useRef(null);
   useEffect(() => {
     const fetchData = async () => {
       const data = await getRecipes();
       setRecipes(data);
+
+      // 랜덤하게 5개 추출
+      const shuffled = [...data].sort(() => 0.5 - Math.random());
+      setRecommendRecipes(shuffled.slice(0, 5));
     };
 
     fetchData();
@@ -82,28 +79,37 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
           {user && <UserName>{user.email?.split("@")[0]}</UserName>}
           <HeaderText>Recipe Book</HeaderText>
         </Header>
-        {filteredRecipes ? null : (
-          <SwiperContainer>
-            <Swiper
-              autoplay
-              autoplayTimeout={3}
-              showsPagination
-              dotColor="#bbb"
-              activeDotColor="#ff6b6b"
-            >
-              {recommendRecipes.map((item) => (
-                <Slide key={item.id}>
-                  <SlideImage
-                    source={{
-                      uri: `${BASE_URL}${item.image}`,
-                    }}
-                    resizeMode="cover"
-                  />
-                </Slide>
-              ))}
-            </Swiper>
-          </SwiperContainer>
-        )}
+        {filteredRecipes
+          ? null
+          : recommendRecipes.length > 1 && (
+              <SwiperContainer>
+                <Carousel
+                  ref={carouselRef}
+                  loop
+                  autoPlay
+                  width={Dimensions.get("window").width}
+                  height={220}
+                  data={recommendRecipes}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      onPress={() =>
+                        navigation.navigate("RecipeDetail", { recipe: item })
+                      }
+                    >
+                      <Slide key={item.id}>
+                        <SlideImage
+                          source={{
+                            uri: `${BASE_URL}${item.image}`,
+                          }}
+                          resizeMode="cover"
+                        />
+                      </Slide>
+                    </TouchableOpacity>
+                  )}
+                  autoPlayInterval={3000}
+                />
+              </SwiperContainer>
+            )}
 
         <StickySearchBar
           style={{
@@ -154,6 +160,7 @@ const Header = styled.View`
   align-items: center;
   justify-content: center;
   position: relative;
+  margin-bottom: 10px;
 `;
 
 const UserName = styled.Text`

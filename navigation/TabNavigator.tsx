@@ -29,7 +29,7 @@ const TabNavigator = () => {
     <Tab.Navigator
       screenOptions={{
         tabBarActiveTintColor: themeColors.primary,
-        tabBarInactiveTintColor: themeColors.primary,
+        tabBarInactiveTintColor: themeColors.placeholder, //회색
         tabBarStyle: {
           backgroundColor: themeColors.card,
           borderTopColor: themeColors.border,

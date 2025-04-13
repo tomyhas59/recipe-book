@@ -20,7 +20,6 @@ const CategoryScreen: React.FC<Props> = ({ navigation }) => {
     new Set(["한식", "중식", "양식", "일식"].map((recipe) => recipe))
   );
 
-  // ✅ 선택한 카테고리의 레시피 필터링
   const filteredRecipes = selectedCategory
     ? recipes.filter((recipe) => recipe.category === selectedCategory)
     : [];
@@ -35,7 +34,6 @@ const CategoryScreen: React.FC<Props> = ({ navigation }) => {
         style={{ height: 50, maxHeight: 50 }}
         renderItem={({ item }) => (
           <CategoryButton
-            selected={item === selectedCategory}
             activeOpacity={0.7}
             onPress={() => setSelectedCategory(item)}
             style={{
@@ -46,7 +44,6 @@ const CategoryScreen: React.FC<Props> = ({ navigation }) => {
             }}
           >
             <CategoryText
-              selected={item === selectedCategory}
               style={{
                 color:
                   item === selectedCategory
@@ -127,13 +124,13 @@ const Subtitle = styled.Text`
   margin-bottom: 10px;
 `;
 
-const CategoryButton = styled.TouchableOpacity<{ selected: boolean }>`
+const CategoryButton = styled.TouchableOpacity`
   padding: 14px 18px;
   border-radius: 25px;
   margin-right: 12px;
 `;
 
-const CategoryText = styled.Text<{ selected: boolean }>`
+const CategoryText = styled.Text`
   font-size: 16px;
   font-weight: bold;
 `;

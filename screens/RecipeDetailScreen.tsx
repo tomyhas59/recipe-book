@@ -37,7 +37,7 @@ const DetailRecipeScreen: React.FC<Props> = ({ route, navigation }) => {
     };
 
     fetchFavorite();
-  }, []);
+  }, [user, recipe?.id]);
 
   const toggleFavorite = async () => {
     setLoading(true);
@@ -152,7 +152,6 @@ const RecipeImage = styled.Image`
   height: 260px;
   border-radius: 20px;
   margin-bottom: 24px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 `;
 
 const Title = styled.Text`

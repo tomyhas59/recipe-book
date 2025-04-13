@@ -72,7 +72,6 @@ const SignScreen: React.FC<Props> = ({ navigation }) => {
       <Card style={{ backgroundColor: themeColors.card }}>
         <TabSelector style={{ backgroundColor: themeColors.background }}>
           <TabButton
-            isActive={screen === "signIn"}
             onPress={() => toggleSign("signIn")}
             style={{
               backgroundColor:
@@ -80,7 +79,6 @@ const SignScreen: React.FC<Props> = ({ navigation }) => {
             }}
           >
             <TabText
-              isActive={screen === "signIn"}
               style={{
                 color:
                   screen === "signIn"
@@ -92,7 +90,6 @@ const SignScreen: React.FC<Props> = ({ navigation }) => {
             </TabText>
           </TabButton>
           <TabButton
-            isActive={screen === "signUp"}
             onPress={() => toggleSign("signUp")}
             style={{
               backgroundColor:
@@ -100,7 +97,6 @@ const SignScreen: React.FC<Props> = ({ navigation }) => {
             }}
           >
             <TabText
-              isActive={screen === "signUp"}
               style={{
                 color:
                   screen === "signUp"
@@ -188,14 +184,14 @@ const TabSelector = styled.View`
   margin-bottom: 24px;
 `;
 
-const TabButton = styled.TouchableOpacity<{ isActive: boolean }>`
+const TabButton = styled.TouchableOpacity`
   flex: 1;
   padding: 12px;
   border-radius: 12px;
   align-items: center;
 `;
 
-const TabText = styled.Text<{ isActive: boolean }>`
+const TabText = styled.Text`
   font-size: 16px;
   font-weight: bold;
 `;

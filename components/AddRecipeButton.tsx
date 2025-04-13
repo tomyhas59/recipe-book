@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components/native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useNavigationState } from "@react-navigation/native";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useRecoilValue } from "recoil";
@@ -12,11 +12,19 @@ const AddRecipeButton = () => {
   const navigation = useNavigation<NavigationProp>();
   const theme = useRecoilValue(selectedTheme);
 
+  const routeName = useNavigationState(
+    (state) => state?.routes?.[state.index]?.name
+  );
+
+  // RecipeCreate 화면에서는 버튼 숨김
+  if (routeName === "RecipeCreate") {
+    return null;
+  }
+
   return (
     <FloatingButton
       onPress={() => navigation.navigate("RecipeCreate")}
       activeOpacity={0.8}
-      $bgColor={theme.primary}
       style={{
         backgroundColor: theme.primary,
       }}
