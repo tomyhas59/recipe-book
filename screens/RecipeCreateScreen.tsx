@@ -1,12 +1,5 @@
 import React, { useRef, useState } from "react";
-import {
-  TextInput,
-  Button,
-  Text,
-  TouchableOpacity,
-  Alert,
-  View,
-} from "react-native";
+import { TextInput, Button, Text, TouchableOpacity, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { selectedTheme } from "../recoil/themeState";
