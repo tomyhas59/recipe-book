@@ -1,8 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  NavigationContainer,
-  useNavigationState,
-} from "@react-navigation/native";
+import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { useSetRecoilState } from "recoil";
 import TabNavigator from "./TabNavigator";
