@@ -1,40 +1,38 @@
 export type User = {
   id: string;
   email: string;
-  nickname: string;
   password: string;
-  recipes?: Recipe[]; // 선택적으로 포함
+  nickname: string;
+  recipes?: Recipe[];
   favorites?: Favorite[];
 };
 
 export type Recipe = {
-  id: number;
+  id?: number;
   name: string;
   description: string;
   category: string;
-  image: string;
-  creator: User;
+  image: string | null;
+  creator?: User;
   ingredients?: Ingredient[];
   instructions?: Instruction[];
   favorites?: Favorite[];
 };
 
 export type Ingredient = {
-  id: number;
+  id?: number;
   name: string;
   amount: string;
-  recipe: Recipe;
 };
 
 export type Instruction = {
-  id: number;
+  id?: number;
   stepNumber: number;
   description: string;
-  recipe: Recipe;
 };
 
 export type Favorite = {
-  id: number;
+  id?: number;
   user: User;
   recipe: Recipe;
 };
