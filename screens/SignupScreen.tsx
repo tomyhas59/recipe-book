@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, Alert } from "react-native";
+import { Button, Alert } from "react-native";
 import styled from "styled-components/native";
 import { userService } from "../services/userService";
 import { useNavigation } from "@react-navigation/native";
