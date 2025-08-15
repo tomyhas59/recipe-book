@@ -1,31 +1,39 @@
 import React, { useState } from "react";
-import { TextInput, Button, Alert } from "react-native";
+import { Button, Alert } from "react-native";
 import styled from "styled-components/native";
 import { recipeService } from "../services/recipeService";
-import { Recipe } from "../types/types";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../App";
 
-type Props = NativeStackScreenProps<RootStackParamList, "RecipeForm">;
+import { useNavigation } from "@react-navigation/native";
+import { NavigationProp } from "./LoginScreen";
+import { useRecoilState } from "recoil";
+import { userState } from "../recoil/userState";
 
-export default function RecipeFormScreen({ navigation }: Props) {
+export default function RecipeFormScreen() {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
   const [image, setImage] = useState("");
+  const navigation = useNavigation<NavigationProp>();
+  const [user] = useRecoilState(userState);
 
   const handleSubmit = async () => {
     try {
-      await recipeService.create({
+      if (user?.id === undefined) {
+        Alert.alert("오류", "유저 정보가 없습니다.");
+        return;
+      }
+
+      await recipeService.create(user.id, {
         name,
         category,
         description,
         content,
         image,
       });
+
       Alert.alert("성공", "레시피가 등록되었습니다.");
-      navigation.goBack();
+      navigation.navigate("Home");
     } catch (err) {
       Alert.alert("실패", "다시 시도해주세요.");
     }

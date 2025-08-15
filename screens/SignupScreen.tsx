@@ -2,18 +2,18 @@ import React, { useState } from "react";
 import { View, TextInput, Button, Alert } from "react-native";
 import styled from "styled-components/native";
 import { userService } from "../services/userService";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../App";
+import { useNavigation } from "@react-navigation/native";
+import { NavigationProp } from "./LoginScreen";
 
-type Props = NativeStackScreenProps<RootStackParamList, "Signup">;
-
-export default function SignupScreen({ navigation }: Props) {
+export default function SignupScreen() {
   const [email, setEmail] = useState("");
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
+  const navigation = useNavigation<NavigationProp>();
 
   const handleSignup = async () => {
     try {
+      if (!email || !password || !nickname) return;
       await userService.signup({ email, nickname, password });
       Alert.alert("회원가입 성공", "로그인 후 이용해주세요.");
       navigation.goBack();
@@ -36,7 +36,10 @@ export default function SignupScreen({ navigation }: Props) {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="회원가입" onPress={handleSignup} />
+      <ButtonWrapper>
+        <Button title="등록" onPress={handleSignup} />
+        <Button title="로그인" onPress={() => navigation.navigate("Login")} />
+      </ButtonWrapper>
     </Container>
   );
 }
@@ -52,4 +55,11 @@ const Input = styled.TextInput`
   margin-bottom: 15px;
   padding: 10px;
   border-radius: 5px;
+`;
+
+const ButtonWrapper = styled.View`
+  display: flex;
+  justify-content: center;
+  flex-direction: row;
+  gap: 5px;
 `;

@@ -1,157 +1,141 @@
-import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { TouchableOpacity, View, Text } from "react-native";
-import { useRecoilState, useRecoilValue } from "recoil";
-import { themeState, selectedTheme } from "../recoil/themeState";
-import { userState } from "../recoil/userState";
-import HomeScreen from "../screens/HomeScreen";
-import FavoritesScreen from "../screens/FavoritesScreen";
+import React from "react";
+import Ionicons from "react-native-vector-icons/Ionicons";
+
+// Screens
+import LoginScreen from "../screens/LoginScreen";
+import SignupScreen from "../screens/SignupScreen";
+import RecipeListScreen from "../screens/RecipeListScreen";
+import RecipeDetailScreen from "../screens/RecipeDetailScreen";
+import RecipeFormScreen from "../screens/RecipeFormScreen";
 import CategoryScreen from "../screens/CategoryScreen";
-import SignScreen from "../screens/SignScreen";
-import { signOut } from "firebase/auth";
-import { auth } from "../firebaseConfig";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Recipe } from "../types/types";
+import { useRecoilValue, useResetRecoilState } from "recoil";
+import { userState } from "../recoil/userState";
+import LogoutScreen from "../screens/LogoutScreen";
+import { View } from "react-native";
+
+export type RootStackParamList = {
+  Home: undefined;
+  Login: undefined;
+  Category: undefined;
+  Signup: undefined;
+  RecipeList: undefined;
+  RecipeDetail: { recipeId: number };
+  RecipeForm: { recipe?: Recipe };
+  MainTabs: undefined;
+};
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator<RootStackParamList>();
+
+function HomeStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="RecipeList" component={RecipeListScreen} />
+      <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} />
+    </Stack.Navigator>
+  );
+}
+
+function CategoryStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Category" component={CategoryScreen} />
+    </Stack.Navigator>
+  );
+}
+
+function FormStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="RecipeForm" component={RecipeFormScreen} />
+    </Stack.Navigator>
+  );
+}
+
+function LoginStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Signup" component={SignupScreen} />
+    </Stack.Navigator>
+  );
+}
+
+const EmptyScreen = () => <View />;
 
 const TabNavigator = () => {
-  const [theme, setTheme] = useRecoilState(themeState);
-  const themeColors = useRecoilValue(selectedTheme);
-  const [isUser, setIsUser] = useRecoilState(userState);
-
-  const handleLogOut = () => {
-    signOut(auth)
-      .then(() => setIsUser(null))
-      .catch((error) => console.error("로그아웃 실패:", error));
-  };
+  const user = useRecoilValue(userState);
+  console.log(user);
 
   return (
     <Tab.Navigator
-      screenOptions={{
-        tabBarActiveTintColor: themeColors.primary,
-        tabBarInactiveTintColor: themeColors.placeholder, //회색
-        tabBarStyle: {
-          backgroundColor: themeColors.card,
-          borderTopColor: themeColors.border,
-        },
-      }}
-    >
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={{
-          tabBarLabel: "홈",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="home" color={color} size={size} />
-          ),
-          headerShown: false,
-        }}
-      />
-      <Tab.Screen
-        name="Category"
-        component={CategoryScreen}
-        options={{
-          tabBarLabel: "카테고리",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="menu" color={color} size={size} />
-          ),
-          headerShown: false,
-        }}
-      />
-      <Tab.Screen
-        name="Favorites"
-        component={FavoritesScreen}
-        options={{
-          tabBarLabel: "즐겨찾기",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="heart" color={color} size={size} />
-          ),
-          headerShown: false,
-        }}
-      />
-      <Tab.Screen
-        name="darkMode"
-        options={{
-          tabBarLabel: theme === "light" ? " 🌙 다크모드" : " ☀️ 라이트모드",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name={theme === "light" ? "weather-night" : "white-balance-sunny"}
-              color={color}
-              size={size}
-            />
-          ),
-          headerShown: false,
-          tabBarButton: () => (
-            <TouchableOpacity
-              onPress={() => setTheme(theme === "light" ? "dark" : "light")}
-              style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <View style={{ alignItems: "center" }}>
-                <MaterialCommunityIcons
-                  name={
-                    theme === "light" ? "weather-night" : "white-balance-sunny"
-                  }
-                  color={themeColors.primary}
-                  size={24}
-                />
-              </View>
-            </TouchableOpacity>
-          ),
-        }}
-      >
-        {() => null}
-      </Tab.Screen>
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ color, size }) => {
+          let iconName = "ellipse";
 
-      {!isUser ? (
+          if (route.name === "Home") iconName = "home-outline";
+          else if (route.name === "CategoryTab") iconName = "list-outline";
+          else if (route.name === "Form") iconName = "add-circle-outline";
+          else if (route.name === "LoginTab") iconName = "log-in-outline";
+          else if (route.name === "Logout") iconName = "log-out-outline";
+
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+
+        tabBarActiveTintColor: "#007AFF",
+        tabBarInactiveTintColor: "gray",
+      })}
+    >
+      <Tab.Screen name="Home" component={HomeStack} options={{ title: "홈" }} />
+      <Tab.Screen
+        name="CategoryTab"
+        component={CategoryStack}
+        options={{ title: "카테고리" }}
+      />
+      {user ? (
         <Tab.Screen
-          name="Sign"
-          component={SignScreen}
+          name="Form"
+          component={FormStack}
           options={{
-            tabBarLabel: "로그인",
+            title: "레시피 등록",
             tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="login" color={color} size={size} />
+              <Ionicons name="create-outline" size={size} color={color} />
             ),
-            headerShown: false,
           }}
         />
       ) : (
         <Tab.Screen
-          name="Logout"
+          name="Logo"
+          component={EmptyScreen}
           options={{
-            tabBarLabel: "로그아웃",
+            title: "레시피북",
             tabBarIcon: ({ color, size }) => (
-              <MaterialCommunityIcons name="logout" color={color} size={size} />
-            ),
-            headerShown: false,
-            tabBarButton: () => (
-              <TouchableOpacity
-                onPress={handleLogOut}
-                style={{
-                  flex: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <View style={{ alignItems: "center" }}>
-                  <MaterialCommunityIcons
-                    name="logout"
-                    color={themeColors.primary}
-                    size={24}
-                  />
-                  <Text style={{ color: themeColors.primary, fontSize: 12 }}>
-                    로그아웃
-                  </Text>
-                </View>
-              </TouchableOpacity>
+              <Ionicons name="book-outline" size={size} color={color} />
             ),
           }}
-        >
-          {() => null}
-        </Tab.Screen>
+          listeners={{
+            tabPress: (e) => {
+              e.preventDefault(); //클릭 무시
+            },
+          }}
+        />
+      )}
+
+      {user ? (
+        <Tab.Screen
+          name="Logout"
+          component={LogoutScreen}
+          options={{ title: "로그아웃" }}
+        />
+      ) : (
+        <Tab.Screen
+          name="LoginTab"
+          component={LoginStack}
+          options={{ title: "로그인" }}
+        />
       )}
     </Tab.Navigator>
   );

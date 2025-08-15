@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import { User } from "../data/user";
+import { User } from "../types/types";
 
 export const userState = atom<User | null>({
   key: "userState",

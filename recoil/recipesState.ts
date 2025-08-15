@@ -1,5 +1,5 @@
 import { atom } from "recoil";
-import { Recipe } from "../services/recipeService";
+import { Recipe } from "../types/types";
 
 export const recipesState = atom<Recipe[]>({
   key: "recipesState",

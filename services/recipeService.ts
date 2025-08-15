@@ -10,8 +10,8 @@ export const recipeService = {
     const res = await api.get(`/recipes/${id}`);
     return res.data as Recipe;
   },
-  create: async (recipe: Recipe) => {
-    const res = await api.post("/recipes", recipe);
+  create: async (userId: number, recipe: Recipe) => {
+    const res = await api.post("/recipes", recipe, { params: { userId } });
     return res.data;
   },
   update: async (id: number, recipe: Recipe) => {

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Text, Button, ScrollView } from "react-native";
+import { Text, Button } from "react-native";
 import styled from "styled-components/native";
 import { recipeService } from "../services/recipeService";
 import { favoriteService } from "../services/favoritesService";
 import { Recipe } from "../types/types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../App";
+import { RootStackParamList } from "../navigation/TabNavigator";
 
 type Props = NativeStackScreenProps<RootStackParamList, "RecipeDetail">;
 
