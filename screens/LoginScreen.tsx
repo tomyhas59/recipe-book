@@ -7,10 +7,10 @@ import { setAuthToken } from "../services/api";
 import { useNavigation } from "@react-navigation/native";
 import { useSetRecoilState } from "recoil";
 import { userState } from "../recoil/userState";
-import { RootStackParamList } from "../navigation/TabNavigator";
+import { RootTabParamList } from "../navigation/TabNavigator";
 
 // 네비게이션 타입
-export type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+export type NavigationProp = NativeStackNavigationProp<RootTabParamList>;
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
@@ -24,7 +24,9 @@ export default function LoginScreen() {
       const res = await userService.login(email, password);
       const token = res.token;
       setAuthToken(token);
-      navigation.navigate("Home");
+      navigation.navigate("HomeTab", {
+        screen: "RecipeList",
+      });
       setUser(res);
     } catch (err) {
       Alert.alert("로그인 실패", "이메일 또는 비밀번호를 확인하세요.");
@@ -44,7 +46,7 @@ export default function LoginScreen() {
         <Button title="로그인" onPress={handleLogin} />
         <Button
           title="회원가입"
-          onPress={() => navigation.navigate("Signup")}
+          onPress={() => navigation.navigate("LoginTab", { screen: "Signup" })}
         />
       </ButtonWrapper>
     </Container>

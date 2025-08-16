@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components/native";
-import { FlatList, ScrollView, TouchableOpacity } from "react-native";
+import { FlatList } from "react-native";
 import { Recipe } from "../types/types";
 import { recipeService } from "../services/recipeService";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProp } from "./LoginScreen";
 
-const CATEGORIES = ["한식", "양식", "일식", "중식"];
-
-export default function CategoryScreen() {
+export default function FavoritesScreen() {
   const [selected, setSelected] = useState<string>("한식");
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const navigation = useNavigation<NavigationProp>();
@@ -25,28 +23,8 @@ export default function CategoryScreen() {
   const screenWidth = 360;
   const cardWidth = (screenWidth - 30) / 2;
 
-  console.log(recipes);
-
   return (
     <Container>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 10 }}
-      >
-        {CATEGORIES.map((category) => (
-          <TouchableOpacity
-            key={category}
-            onPress={() => setSelected(category)}
-          >
-            <Category selected={selected === category}>
-              <CategoryText selected={selected === category}>
-                {category}
-              </CategoryText>
-            </Category>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
       {recipes.length > 0 && (
         <FlatList
           data={recipes}

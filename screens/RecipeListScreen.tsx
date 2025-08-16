@@ -23,7 +23,6 @@ export default function RecipeListScreen() {
   const screenWidth = 360;
   const cardWidth = (screenWidth - 30) / 2;
 
-  console.log(recipes);
   return (
     <Container>
       <FlatList
@@ -34,7 +33,10 @@ export default function RecipeListScreen() {
           <RecipeItem
             width={cardWidth}
             onPress={() =>
-              navigation.navigate("RecipeDetail", { recipeId: item.id! })
+              navigation.navigate("HomeTab", {
+                screen: "RecipeDetail",
+                params: { recipeId: item.id! },
+              })
             }
           >
             <RecipeImage />

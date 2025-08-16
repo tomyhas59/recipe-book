@@ -10,57 +10,84 @@ import RecipeDetailScreen from "../screens/RecipeDetailScreen";
 import RecipeFormScreen from "../screens/RecipeFormScreen";
 import CategoryScreen from "../screens/CategoryScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { Recipe } from "../types/types";
-import { useRecoilValue, useResetRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import { userState } from "../recoil/userState";
 import LogoutScreen from "../screens/LogoutScreen";
 import { View } from "react-native";
+import { NavigatorScreenParams } from "@react-navigation/native";
+import FavoritesScreen from "../screens/FavoritesScreen";
 
-export type RootStackParamList = {
-  Home: undefined;
+export type LoginStackParamList = {
   Login: undefined;
-  Category: undefined;
   Signup: undefined;
+};
+
+export type HomeStackParamList = {
   RecipeList: undefined;
   RecipeDetail: { recipeId: number };
-  RecipeForm: { recipe?: Recipe };
-  MainTabs: undefined;
+};
+
+export type CategoryStackParamList = {
+  Category: undefined;
+};
+export type FavoritesStackParamList = {
+  Favorites: undefined;
+};
+
+export type RootTabParamList = {
+  HomeTab: NavigatorScreenParams<HomeStackParamList>;
+  CategoryTab: NavigatorScreenParams<CategoryStackParamList>;
+  FormTab: undefined;
+  LoginTab: NavigatorScreenParams<LoginStackParamList>;
+  LogoutTab: undefined;
 };
 
 const Tab = createBottomTabNavigator();
-const Stack = createNativeStackNavigator<RootStackParamList>();
+const HomeStackNav = createNativeStackNavigator<HomeStackParamList>();
+const CategoryStackNav = createNativeStackNavigator<CategoryStackParamList>();
+const FavoritesStackNav = createNativeStackNavigator<FavoritesStackParamList>();
+const LoginStackNav = createNativeStackNavigator<LoginStackParamList>();
+const FormStackNav = createNativeStackNavigator();
 
 function HomeStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="RecipeList" component={RecipeListScreen} />
-      <Stack.Screen name="RecipeDetail" component={RecipeDetailScreen} />
-    </Stack.Navigator>
+    <HomeStackNav.Navigator screenOptions={{ headerShown: false }}>
+      <HomeStackNav.Screen name="RecipeList" component={RecipeListScreen} />
+      <HomeStackNav.Screen name="RecipeDetail" component={RecipeDetailScreen} />
+    </HomeStackNav.Navigator>
   );
 }
 
 function CategoryStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Category" component={CategoryScreen} />
-    </Stack.Navigator>
+    <CategoryStackNav.Navigator screenOptions={{ headerShown: false }}>
+      <CategoryStackNav.Screen name="Category" component={CategoryScreen} />
+    </CategoryStackNav.Navigator>
   );
 }
 
 function FormStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="RecipeForm" component={RecipeFormScreen} />
-    </Stack.Navigator>
+    <FormStackNav.Navigator screenOptions={{ headerShown: false }}>
+      <FormStackNav.Screen name="RecipeForm" component={RecipeFormScreen} />
+    </FormStackNav.Navigator>
+  );
+}
+
+function FavoritesStack() {
+  return (
+    <FavoritesStackNav.Navigator screenOptions={{ headerShown: false }}>
+      <FavoritesStackNav.Screen name="Favorites" component={FavoritesScreen} />
+    </FavoritesStackNav.Navigator>
   );
 }
 
 function LoginStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Signup" component={SignupScreen} />
-    </Stack.Navigator>
+    <LoginStackNav.Navigator screenOptions={{ headerShown: false }}>
+      <LoginStackNav.Screen name="Login" component={LoginScreen} />
+      <LoginStackNav.Screen name="Signup" component={SignupScreen} />
+    </LoginStackNav.Navigator>
   );
 }
 
@@ -76,11 +103,11 @@ const TabNavigator = () => {
         tabBarIcon: ({ color, size }) => {
           let iconName = "ellipse";
 
-          if (route.name === "Home") iconName = "home-outline";
+          if (route.name === "HomeTab") iconName = "home-outline";
           else if (route.name === "CategoryTab") iconName = "list-outline";
-          else if (route.name === "Form") iconName = "add-circle-outline";
+          else if (route.name === "FormTab") iconName = "add-circle-outline";
           else if (route.name === "LoginTab") iconName = "log-in-outline";
-          else if (route.name === "Logout") iconName = "log-out-outline";
+          else if (route.name === "LogoutTab") iconName = "log-out-outline";
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -89,23 +116,39 @@ const TabNavigator = () => {
         tabBarInactiveTintColor: "gray",
       })}
     >
-      <Tab.Screen name="Home" component={HomeStack} options={{ title: "홈" }} />
+      <Tab.Screen
+        name="HomeTab"
+        component={HomeStack}
+        options={{ title: "홈" }}
+      />
       <Tab.Screen
         name="CategoryTab"
         component={CategoryStack}
         options={{ title: "카테고리" }}
       />
       {user ? (
-        <Tab.Screen
-          name="Form"
-          component={FormStack}
-          options={{
-            title: "레시피 등록",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="create-outline" size={size} color={color} />
-            ),
-          }}
-        />
+        <>
+          <Tab.Screen
+            name="FormTab"
+            component={FormStack}
+            options={{
+              title: "레시피 등록",
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="create-outline" size={size} color={color} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="FavoriteTab"
+            component={FavoritesStack}
+            options={{
+              title: "즐겨찾기",
+              tabBarIcon: ({ color, size }) => (
+                <Ionicons name="star-outline" size={size} color={color} />
+              ),
+            }}
+          />
+        </>
       ) : (
         <Tab.Screen
           name="Logo"
@@ -126,7 +169,7 @@ const TabNavigator = () => {
 
       {user ? (
         <Tab.Screen
-          name="Logout"
+          name="LogoutTab"
           component={LogoutScreen}
           options={{ title: "로그아웃" }}
         />

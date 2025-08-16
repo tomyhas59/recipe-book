@@ -38,7 +38,10 @@ export default function SignupScreen() {
       />
       <ButtonWrapper>
         <Button title="등록" onPress={handleSignup} />
-        <Button title="로그인" onPress={() => navigation.navigate("Login")} />
+        <Button
+          title="로그인"
+          onPress={() => navigation.navigate("LoginTab", { screen: "Login" })}
+        />
       </ButtonWrapper>
     </Container>
   );

@@ -33,7 +33,7 @@ export default function RecipeFormScreen() {
       });
 
       Alert.alert("성공", "레시피가 등록되었습니다.");
-      navigation.navigate("Home");
+      navigation.navigate("HomeTab", { screen: "RecipeList" });
     } catch (err) {
       Alert.alert("실패", "다시 시도해주세요.");
     }

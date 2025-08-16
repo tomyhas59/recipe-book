@@ -5,9 +5,9 @@ import { recipeService } from "../services/recipeService";
 import { favoriteService } from "../services/favoritesService";
 import { Recipe } from "../types/types";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../navigation/TabNavigator";
+import { HomeStackParamList } from "../navigation/TabNavigator";
 
-type Props = NativeStackScreenProps<RootStackParamList, "RecipeDetail">;
+type Props = NativeStackScreenProps<HomeStackParamList, "RecipeDetail">;
 
 export default function RecipeDetailScreen({ route }: Props) {
   const { recipeId } = route.params;
@@ -25,7 +25,7 @@ export default function RecipeDetailScreen({ route }: Props) {
 
   useEffect(() => {
     fetchRecipe();
-  }, []);
+  }, [recipeId]);
 
   if (!recipe) return <Text>Loading...</Text>;
 

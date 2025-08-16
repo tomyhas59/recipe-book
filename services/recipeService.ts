@@ -10,6 +10,10 @@ export const recipeService = {
     const res = await api.get(`/recipes/${id}`);
     return res.data as Recipe;
   },
+  getByCategory: async (category: string) => {
+    const res = await api.get(`/recipes/category/${category}`);
+    return res.data as Recipe[];
+  },
   create: async (userId: number, recipe: Recipe) => {
     const res = await api.post("/recipes", recipe, { params: { userId } });
     return res.data;
