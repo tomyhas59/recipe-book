@@ -13,10 +13,11 @@ export type Recipe = {
   content: string;
   image: string;
   creator?: User;
+  isFavorite?: boolean;
 };
 
 export type Favorite = {
   id?: number;
-  userId: string;
-  recipeId: number;
+  userId: number;
+  recipe: Recipe;
 };

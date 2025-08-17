@@ -5,6 +5,10 @@ import { Recipe } from "../types/types";
 import { recipeService } from "../services/recipeService";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProp } from "./LoginScreen";
+import { useRecoilState } from "recoil";
+import { userState } from "../recoil/userState";
+import RecipeItem from "../components/RecipeItem";
+import { favoriteService } from "../services/favoritesService";
 
 const CATEGORIES = ["한식", "양식", "일식", "중식"];
 
@@ -12,10 +16,22 @@ export default function CategoryScreen() {
   const [selected, setSelected] = useState<string>("한식");
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const navigation = useNavigation<NavigationProp>();
+  const [user] = useRecoilState(userState);
 
   const fetchRecipes = async () => {
     const data = await recipeService.getByCategory(selected);
-    setRecipes(data);
+
+    if (user?.id) {
+      const recipesWithFav = await Promise.all(
+        data.map(async (recipe) => ({
+          ...recipe,
+          isFavorite: await favoriteService.isFavorite(user.id!, recipe.id!),
+        }))
+      );
+      setRecipes(recipesWithFav);
+    } else {
+      setRecipes(data);
+    }
   };
 
   useEffect(() => {
@@ -23,9 +39,7 @@ export default function CategoryScreen() {
   }, [selected]);
 
   const screenWidth = 360;
-  const cardWidth = (screenWidth - 30) / 2;
-
-  console.log(recipes);
+  const cardWidth = (screenWidth - 50) / 2;
 
   return (
     <Container>
@@ -34,11 +48,8 @@ export default function CategoryScreen() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 10 }}
       >
-        {CATEGORIES.map((category) => (
-          <TouchableOpacity
-            key={category}
-            onPress={() => setSelected(category)}
-          >
+        {CATEGORIES.map((category, index) => (
+          <TouchableOpacity key={index} onPress={() => setSelected(category)}>
             <Category selected={selected === category}>
               <CategoryText selected={selected === category}>
                 {category}
@@ -54,21 +65,16 @@ export default function CategoryScreen() {
           numColumns={2}
           renderItem={({ item }) => (
             <RecipeItem
+              recipe={item}
               width={cardWidth}
+              showFavorite={!!user}
               onPress={() =>
                 navigation.navigate("HomeTab", {
                   screen: "RecipeDetail",
                   params: { recipeId: item.id! },
                 })
               }
-            >
-              <RecipeImage />
-              <RecipeName>{item.name}</RecipeName>
-              <RecipeCategory>{item.category}</RecipeCategory>
-              <RecipeDescription numberOfLines={2}>
-                {item.description}
-              </RecipeDescription>
-            </RecipeItem>
+            />
           )}
         />
       )}
@@ -98,41 +104,4 @@ const CategoryText = styled.Text<CategoryProps>`
   color: ${({ selected }: { selected: boolean }) =>
     selected ? "white" : "black"};
   font-weight: 500;
-`;
-
-const RecipeItem = styled.TouchableOpacity<{ width: number }>`
-  background-color: #fff;
-  width: ${({ width }: { width: number }) => width}px;
-  padding: 10px;
-  margin: 5px;
-  border-radius: 12px;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
-  elevation: 3;
-`;
-
-const RecipeImage = styled.View`
-  width: 100%;
-  height: 120px;
-  background-color: #e0e0e0;
-  border-radius: 10px;
-  margin-bottom: 10px;
-`;
-
-const RecipeName = styled.Text`
-  font-size: 16px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 4px;
-`;
-
-const RecipeCategory = styled.Text`
-  font-size: 12px;
-  color: #007aff;
-  margin-bottom: 4px;
-`;
-
-const RecipeDescription = styled.Text`
-  font-size: 12px;
-  color: #666;
-  line-height: 18px;
 `;

@@ -1,95 +1,89 @@
-import React, { useEffect, useState } from "react";
-import { FlatList, Button, Text } from "react-native";
+import React, { useEffect } from "react";
+import { FlatList } from "react-native";
 import styled from "styled-components/native";
 import { recipeService } from "../services/recipeService";
-import { Recipe } from "../types/types";
 import { useNavigation } from "@react-navigation/native";
-
 import { NavigationProp } from "./LoginScreen";
+import { recipesState } from "../recoil/recipesState";
+import { useRecoilState } from "recoil";
+import { userState } from "../recoil/userState";
+import { favoriteService } from "../services/favoritesService";
+import RecipeItem from "../components/RecipeItem";
 
 export default function RecipeListScreen() {
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [recipes, setRecipes] = useRecoilState(recipesState);
   const navigation = useNavigation<NavigationProp>();
+  const [user] = useRecoilState(userState);
 
   const fetchRecipes = async () => {
     const data = await recipeService.getAll();
-    setRecipes(data);
+
+    if (user?.id) {
+      const recipesWithFav = await Promise.all(
+        data.map(async (recipe) => ({
+          ...recipe,
+          isFavorite: await favoriteService.isFavorite(user.id!, recipe.id!),
+        }))
+      );
+      setRecipes(recipesWithFav);
+    } else {
+      setRecipes(data);
+    }
   };
 
   useEffect(() => {
-    fetchRecipes();
+    if (recipes.length === 0) {
+      fetchRecipes();
+    }
   }, []);
 
+  useEffect(() => {
+    if (user?.id) {
+      const fetchWithFavorites = async () => {
+        const recipesWithFav = await Promise.all(
+          recipes.map(async (recipe) => ({
+            ...recipe,
+            isFavorite: await favoriteService.isFavorite(user.id!, recipe.id!),
+          }))
+        );
+        setRecipes(recipesWithFav);
+      };
+
+      fetchWithFavorites();
+    }
+  }, [user]);
+
   const screenWidth = 360;
-  const cardWidth = (screenWidth - 30) / 2;
+  const cardWidth = (screenWidth - 50) / 2;
 
   return (
     <Container>
       <FlatList
         data={recipes}
-        keyExtractor={(item) => item.id?.toString() || ""}
+        keyExtractor={(item, index) =>
+          item.id ? item.id.toString() : `recipe-${index}`
+        }
         numColumns={2}
         renderItem={({ item }) => (
           <RecipeItem
+            recipe={item}
             width={cardWidth}
+            showFavorite={!!user}
             onPress={() =>
               navigation.navigate("HomeTab", {
                 screen: "RecipeDetail",
                 params: { recipeId: item.id! },
               })
             }
-          >
-            <RecipeImage />
-            <RecipeName>{item.name}</RecipeName>
-            <RecipeCategory>{item.category}</RecipeCategory>
-            <RecipeDescription numberOfLines={2}>
-              {item.description}
-            </RecipeDescription>
-          </RecipeItem>
+          />
         )}
       />
     </Container>
   );
 }
+
 const Container = styled.View`
   flex: 1;
   background-color: #f5f5f5;
   padding: 10px;
-`;
-
-const RecipeItem = styled.TouchableOpacity<{ width: number }>`
-  background-color: #fff;
-  width: ${({ width }: { width: number }) => width}px;
-  padding: 10px;
-  margin: 5px;
-  border-radius: 12px;
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
-  elevation: 3;
-`;
-
-const RecipeImage = styled.View`
-  width: 100%;
-  height: 120px;
-  background-color: #e0e0e0;
-  border-radius: 10px;
-  margin-bottom: 10px;
-`;
-
-const RecipeName = styled.Text`
-  font-size: 16px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 4px;
-`;
-
-const RecipeCategory = styled.Text`
-  font-size: 12px;
-  color: #007aff;
-  margin-bottom: 4px;
-`;
-
-const RecipeDescription = styled.Text`
-  font-size: 12px;
-  color: #666;
-  line-height: 18px;
 `;
