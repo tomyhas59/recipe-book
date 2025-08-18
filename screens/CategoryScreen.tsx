@@ -38,9 +38,6 @@ export default function CategoryScreen() {
     fetchRecipes();
   }, [selected]);
 
-  const screenWidth = 360;
-  const cardWidth = (screenWidth - 50) / 2;
-
   return (
     <Container>
       <ScrollView
@@ -66,7 +63,6 @@ export default function CategoryScreen() {
           renderItem={({ item }) => (
             <RecipeItem
               recipe={item}
-              width={cardWidth}
               showFavorite={!!user}
               onPress={() =>
                 navigation.navigate("HomeTab", {
@@ -83,7 +79,8 @@ export default function CategoryScreen() {
 }
 
 const Container = styled.View`
-  padding: 10px;
+  background-color: #f5f5f5;
+  margin: 0 auto;
 `;
 
 interface CategoryProps {

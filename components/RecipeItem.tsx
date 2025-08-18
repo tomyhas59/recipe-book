@@ -6,34 +6,33 @@ import { TouchableOpacityProps } from "react-native";
 
 interface RecipeItemProps extends TouchableOpacityProps {
   recipe: Recipe & { isFavorite?: boolean };
-  width: number;
   onPress?: () => void;
   showFavorite?: boolean;
 }
 
 export default function RecipeItem({
   recipe,
-  width,
   onPress,
   showFavorite = true,
   ...props
 }: RecipeItemProps) {
   return (
-    <Container width={width} onPress={onPress} {...props}>
+    <Container onPress={onPress} {...props}>
       <RecipeImage />
 
-      {showFavorite && recipe.isFavorite !== undefined && (
-        <FavoriteIconWrapper>
-          <Ionicons
-            name={recipe.isFavorite ? "star" : "star-outline"}
-            size={24}
-            color={recipe.isFavorite ? "#FFD700" : "#888"}
-          />
-        </FavoriteIconWrapper>
-      )}
-
       <RecipeInfo>
-        <RecipeName>{recipe.name}</RecipeName>
+        <RecipeName>
+          {recipe.name}
+          {showFavorite && recipe.isFavorite !== undefined && (
+            <FavoriteIconWrapper>
+              <Ionicons
+                name={recipe.isFavorite ? "star" : "star-outline"}
+                size={24}
+                color={recipe.isFavorite ? "#FFD700" : "#888"}
+              />
+            </FavoriteIconWrapper>
+          )}
+        </RecipeName>
         <RecipeCategory>{recipe.category}</RecipeCategory>
         <RecipeDescription numberOfLines={2}>
           {recipe.description}
@@ -45,20 +44,12 @@ export default function RecipeItem({
 
 const Container = styled.TouchableOpacity<{ width: number }>`
   background-color: #fff;
-  width: ${({ width }: { width: number }) => width}px;
+  width: 150px;
   padding: 12px;
   margin: 5px;
   border-radius: 12px;
   box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
-  elevation: 3;
   position: relative;
-`;
-
-const FavoriteIconWrapper = styled.View`
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 10;
 `;
 
 const RecipeImage = styled.View`
@@ -74,10 +65,16 @@ const RecipeInfo = styled.View`
 `;
 
 const RecipeName = styled.Text`
+  position: relative;
   font-size: 16px;
   font-weight: bold;
   color: #333;
   margin-bottom: 4px;
+`;
+
+const FavoriteIconWrapper = styled.View`
+  position: absolute;
+  right: 0;
 `;
 
 const RecipeCategory = styled.Text`
@@ -91,4 +88,5 @@ const RecipeDescription = styled.Text`
   color: #666;
   line-height: 18px;
   margin-bottom: 4px;
+  word-break: keep-all;
 `;

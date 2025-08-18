@@ -28,9 +28,6 @@ export default function FavoritesScreen() {
 
   const recipes: Recipe[] = favorites.map((fav) => fav.recipe);
 
-  const screenWidth = 360;
-  const cardWidth = (screenWidth - 50) / 2;
-
   return (
     <Container>
       <FlatList
@@ -40,7 +37,6 @@ export default function FavoritesScreen() {
         renderItem={({ item }) => (
           <RecipeItem
             recipe={item}
-            width={cardWidth}
             showFavorite={!!user}
             onPress={() =>
               navigation.navigate("HomeTab", {
@@ -56,5 +52,6 @@ export default function FavoritesScreen() {
 }
 
 const Container = styled.View`
-  padding: 10px;
+  background-color: #f5f5f5;
+  margin: 0 auto;
 `;

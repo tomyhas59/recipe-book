@@ -53,9 +53,6 @@ export default function RecipeListScreen() {
     }
   }, [user]);
 
-  const screenWidth = 360;
-  const cardWidth = (screenWidth - 50) / 2;
-
   return (
     <Container>
       <FlatList
@@ -67,7 +64,6 @@ export default function RecipeListScreen() {
         renderItem={({ item }) => (
           <RecipeItem
             recipe={item}
-            width={cardWidth}
             showFavorite={!!user}
             onPress={() =>
               navigation.navigate("HomeTab", {
@@ -83,7 +79,6 @@ export default function RecipeListScreen() {
 }
 
 const Container = styled.View`
-  flex: 1;
   background-color: #f5f5f5;
-  padding: 10px;
+  margin: 0 auto;
 `;
