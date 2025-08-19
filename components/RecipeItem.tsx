@@ -18,7 +18,7 @@ export default function RecipeItem({
 }: RecipeItemProps) {
   return (
     <Container onPress={onPress} {...props}>
-      <RecipeImage />
+      <RecipeImage source={{ uri: recipe.image }} resizeMode="contain" />
 
       <RecipeInfo>
         <RecipeName>
@@ -42,7 +42,7 @@ export default function RecipeItem({
   );
 }
 
-const Container = styled.TouchableOpacity<{ width: number }>`
+const Container = styled.TouchableOpacity`
   background-color: #fff;
   width: 150px;
   padding: 12px;
@@ -52,10 +52,9 @@ const Container = styled.TouchableOpacity<{ width: number }>`
   position: relative;
 `;
 
-const RecipeImage = styled.View`
+const RecipeImage = styled.Image`
   width: 100%;
   height: 120px;
-  background-color: #e0e0e0;
   border-radius: 10px;
   margin-bottom: 10px;
 `;

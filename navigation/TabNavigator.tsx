@@ -14,7 +14,7 @@ import { useRecoilValue } from "recoil";
 import { userState } from "../recoil/userState";
 import LogoutScreen from "../screens/LogoutScreen";
 import { View } from "react-native";
-import { NavigatorScreenParams } from "@react-navigation/native";
+import { CommonActions, NavigatorScreenParams } from "@react-navigation/native";
 import FavoritesScreen from "../screens/FavoritesScreen";
 
 export type LoginStackParamList = {
@@ -120,6 +120,17 @@ const TabNavigator = () => {
         name="HomeTab"
         component={HomeStack}
         options={{ title: "홈" }}
+        listeners={({ navigation }) => ({
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.dispatch(
+              CommonActions.navigate({
+                name: "HomeTab",
+                params: { screen: "RecipeList" },
+              })
+            );
+          },
+        })}
       />
       <Tab.Screen
         name="CategoryTab"

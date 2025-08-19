@@ -53,6 +53,8 @@ export default function RecipeListScreen() {
     }
   }, [user]);
 
+  console.log(recipes);
+
   return (
     <Container>
       <FlatList
@@ -79,6 +81,7 @@ export default function RecipeListScreen() {
 }
 
 const Container = styled.View`
+  flex: 1;
   background-color: #f5f5f5;
-  margin: 0 auto;
+  padding: 10px;
 `;

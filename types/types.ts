@@ -12,7 +12,7 @@ export type Recipe = {
   description: string;
   content: string;
   image: string;
-  creator?: User;
+  creator: User;
   isFavorite?: boolean;
 };
 
