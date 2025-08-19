@@ -80,6 +80,7 @@ export default function CategoryScreen() {
 
 const Container = styled.View`
   background-color: #f5f5f5;
+  padding: 5px;
   margin: 0 auto;
 `;
 
