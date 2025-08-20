@@ -5,10 +5,11 @@ import * as ImagePicker from "expo-image-picker";
 import { recipeService } from "../services/recipeService";
 import { useNavigation } from "@react-navigation/native";
 import { NavigationProp } from "./LoginScreen";
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { userState } from "../recoil/userState";
 import { uploadImage } from "../utils/uploadImage";
 import { CATEGORIES } from "./CategoryScreen";
+import { recipesState } from "../recoil/recipesState";
 
 export default function RecipeFormScreen() {
   const [name, setName] = useState("");
@@ -19,6 +20,7 @@ export default function RecipeFormScreen() {
   const [uploading, setUploading] = useState(false);
   const navigation = useNavigation<NavigationProp>();
   const [user] = useRecoilState(userState);
+  const setRecipes = useSetRecoilState(recipesState);
 
   // 이미지 선택 (업로드 X, 로컬 경로만 저장)
   const handlePickImage = async () => {
@@ -67,12 +69,17 @@ export default function RecipeFormScreen() {
         description,
         content,
         image: uploadedUrl, // 업로드 성공한 URL만 저장
-        creatorId: user.id,
+        creator: user,
+        isFavorite: false,
       };
 
-      await recipeService.create(user.id, recipeData);
+      const res = await recipeService.create(user.id, recipeData);
+
+      const newRecipe = { ...recipeData, id: res.id };
 
       Alert.alert("성공", "레시피가 등록되었습니다.");
+      setRecipes((prev) => [newRecipe, ...prev]);
+
       navigation.navigate("HomeTab", { screen: "RecipeList" });
     } catch (err: any) {
       Alert.alert("실패", err.message || "레시피 등록에 실패했습니다.");
